@@ -2,7 +2,7 @@ package models
 
 type Student struct {
 	ID              int    `json:"id"`               //用户id
-	StudentID       string `json:"studentid"`        //学号
+	StudentID       string `json:"student_id"`       //学号
 	Name            string `json:"name"`             //姓名
 	Email           string `json:"email"`            //邮箱
 	Class           string `json:"class"`            //专业班级
