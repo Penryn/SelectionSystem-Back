@@ -2,6 +2,7 @@ package models
 
 type Student struct {
 	ID              int     `json:"id"`               //用户id
+	UserID          int     `json:"user_id"`          //用户编号
 	StudentID       string  `json:"student_id"`       //学号
 	Name            string  `json:"name"`             //姓名
 	Email           string  `json:"email"`            //邮箱
@@ -13,6 +14,9 @@ type Student struct {
 	Experience      string  `json:"experience"`       //项目实践经历
 	Honor           string  `json:"honor"`            //获得荣誉
 	Interest        string  `json:"interest"`         //个人专业研究兴趣方向
-	Target_id       int     `json:"target_id"`        //目标导师id
+	TargetID        int     `json:"target_id"`        //目标导师id
+	TargetStatus    int     `json:"target_agree"`     //目标导师状态 		0：待处理 1：同意 2：拒绝
+	AdminStatus     int     `json:"admin_agree"`      //管理员状态			0：待处理 1：同意 2：拒绝
 	Teacher         Teacher `json:"teacher"`          //导师
+
 }
