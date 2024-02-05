@@ -12,6 +12,8 @@ var (
 	ServerError           = NewError(http.StatusInternalServerError, 200500, "系统异常，请稍后重试!")
 	OpenIDError           = NewError(http.StatusInternalServerError, 200500, "系统异常，请稍后重试!")
 	ParamError            = NewError(http.StatusInternalServerError, 200501, "参数错误")
+	NoThatWrong 		 = NewError(http.StatusInternalServerError, 200502, "账号或密码错误")
+	UserNotFind 		 = NewError(http.StatusNotFound, 200503, "用户不存在")
 	NotFound              = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	Unknown               = NewError(http.StatusInternalServerError, 300500, "系统异常，请稍后重试!")
 )

@@ -1,9 +1,8 @@
 package models
 
 type Teacher struct {
-	Id          int64     `json:"id"`
-	UserID      int64     `json:"user_id"`      //用户编号
-	TeacherID   int64     `json:"teacher_ID"`   //教师编号
+	ID          int     `json:"id"`
+	UserID      int     `json:"user_id"`      //用户编号
 	TeacherName string    `json:"teacher_name"` //教师姓名
 	Section     string    `json:"section"`      //部门
 	Office      string    `json:"office"`       //办公室

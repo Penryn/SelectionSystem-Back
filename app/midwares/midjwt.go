@@ -74,7 +74,6 @@ func JWTAuthMiddleware()func(c *gin.Context){
 			c.Abort()
 			return
 		}
-
 		c.Set("UserID",mc.UserID)
 		c.Next()
 	}
