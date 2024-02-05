@@ -2,6 +2,7 @@ package main
 
 import (
 	"SelectionSystem-Back/app/midwares"
+	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/config/database"
 	"SelectionSystem-Back/config/router"
 	"log"
@@ -21,6 +22,8 @@ func main() {
 	r.Use(midwares.ErrHandler())
 	r.NoMethod(midwares.HandleNotFound)
 	r.NoRoute(midwares.HandleNotFound)
+	userService.CreateAdministrator()
+	userService.ImportTeacherExcel()
 	router.Init(r)
 	err:=r.Run()
 	if err !=nil{
