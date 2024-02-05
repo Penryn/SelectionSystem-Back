@@ -18,5 +18,6 @@ type Student struct {
 	TargetStatus    int     `json:"target_agree"`     //目标导师状态 		0：待处理 1：同意 2：拒绝
 	AdminStatus     int     `json:"admin_agree"`      //管理员状态			0：待处理 1：同意 2：拒绝
 	Teacher         Teacher `json:"teacher"`          //导师
+	TeacherID       int     `json:"teacher_id"`       //导师id
 
 }
