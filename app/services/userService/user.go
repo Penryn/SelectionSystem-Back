@@ -12,7 +12,7 @@ import (
 
 func CreateUser(user models.User) error {
 	result_a := database.DB.Create(&user)
-	result_b := database.DB.Create(&models.Student{UserID: user.ID, StudentID: user.Username})
+	result_b := database.DB.Omit("teacher_id").Create(&models.Student{UserID: user.ID, StudentID: user.Username})
 	if result_a.Error != nil {
 		return result_a.Error
 	} else if result_b.Error != nil {
@@ -39,6 +39,18 @@ func GetAvartar() string {
 	}
 	randomIndex := rand.Intn(len(avatars))
 	return avatars[randomIndex]
+}
+
+
+func GetUserByID(id int) (models.User, error) {
+	var user models.User
+	result := database.DB.Where(models.User{ID: id}).First(&user)
+	return user, result.Error
+}
+
+func UpdatePassword(user models.User, newPassword string) error {
+	result := database.DB.Model(&user).Update("password", newPassword)
+	return result.Error
 }
 
 // 新建管理员

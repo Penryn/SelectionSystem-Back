@@ -11,5 +11,6 @@ func Init(r *gin.Engine) {
 	api := r.Group(pre)
 	{
 		api.POST("/login", userController.Login)
+		api.PUT("/reset", userController.Retrieve)
 	}
 }

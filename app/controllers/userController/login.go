@@ -5,6 +5,7 @@ import (
 	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
+	"net/http"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
@@ -39,10 +40,10 @@ func Login(c *gin.Context) {
 		}
 		//如果username第一位数字是2说明是2023级以前的，否则是2023级以后的
 		if data.Username[0] == '2' {
-			msg = data.Username[:4]+"级学生"
-		} else if data.Username[0] == '3'{
-			msg = data.Username[2:6]+"级学生"
-		}else{
+			msg = data.Username[:4] + "级学生"
+		} else if data.Username[0] == '3' {
+			msg = data.Username[2:6] + "级学生"
+		} else {
 			utils.JsonErrorResponse(c, apiException.NoThatWrong)
 			return
 		}
@@ -57,7 +58,7 @@ func Login(c *gin.Context) {
 					Username: data.Username,
 					Password: data.Password,
 					Type:     data.Type,
-					Avartar: userService.GetAvartar(),
+					Avartar:  userService.GetAvartar(),
 				})
 				if err != nil {
 					utils.JsonErrorResponse(c, apiException.ServerError)
@@ -73,7 +74,7 @@ func Login(c *gin.Context) {
 				utils.JsonErrorResponse(c, apiException.NoThatWrong)
 				return
 			}
-		}else if err == nil {
+		} else if err == nil {
 			//用户存在
 			//判断密码是否正确
 			if user.Password != data.Password {
@@ -85,7 +86,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		//教师和管理员
-	} else if data.Type == 2|| data.Type == 3{
+	} else if data.Type == 2 || data.Type == 3 {
 		if data.Type == 2 {
 			msg = "教师"
 		} else {
@@ -93,10 +94,10 @@ func Login(c *gin.Context) {
 		}
 		//查找用户是否存在
 		user, err = userService.GetUserByUsername(data.Username)
-		if err != nil  && err == gorm.ErrRecordNotFound {
+		if err != nil && err == gorm.ErrRecordNotFound {
 			utils.JsonErrorResponse(c, apiException.UserNotFind)
 			return
-		}else if err == nil {
+		} else if err == nil {
 			if user.Password != data.Password {
 				utils.JsonErrorResponse(c, apiException.NoThatWrong)
 				return
@@ -116,13 +117,16 @@ func Login(c *gin.Context) {
 		return
 	}
 	type loginresult struct {
-		Token string `json:"token"`
-		Msg   string `json:"msg"`
+		Token   string `json:"token"`
+		Msg     string `json:"msg"`
 		Avartar string `json:"avartar"`
 	}
-	c.JSON(200, loginresult{
-		Token: token,
-		Msg:   msg,
-		Avartar: user.Avartar,
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "ok",
+		"data": loginresult{
+			Token:   token,
+			Msg:     msg,
+			Avartar: user.Avartar},
 	})
 }
