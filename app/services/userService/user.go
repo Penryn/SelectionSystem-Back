@@ -2,11 +2,11 @@ package userService
 
 import (
 	"github.com/xuri/excelize/v2"
+	"gorm.io/gorm"
 
 	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/config/config"
 	"SelectionSystem-Back/config/database"
-	"fmt"
 	"math/rand"
 )
 
@@ -28,7 +28,7 @@ func GetUserByUsername(username string) (models.User, error) {
 	return user, result.Error
 }
 
-func GetAvatar() string {
+func GetAvartar() string {
 	avatars := []string{
 		"http://inews.gtimg.com/newsapp_bt/0/14710913833/1000",
 		"https://i01piccdn.sogoucdn.com/5f97fd70f583cec5",
@@ -57,37 +57,40 @@ func CreateAdministrator() error {
 func ImportTeacherExcel() error {
 	file, err := excelize.OpenFile("德育导师名单.xlsx")
 	if err != nil {
-		fmt.Println(1)
 		return err
 	}
 	records, err := file.GetRows("Sheet1")
     if err != nil {
-        fmt.Println(2)
         return err
     }
 	for i, record := range records {
 		if i == 0 || i == 1 {
 			continue
 		}
-		result := database.DB.Create(&models.User{Username: "114514" + record[0], Password: "114514", Type: 2})
-		if result.Error != nil {
-			return result.Error
-		}
-		user, err := GetUserByUsername("114514" + record[0])
-		if err != nil {
-			return err
-		}
-		fmt.Println(4)
-		fmt.Println(record[1], record[2], record[3], record[4], record[5])
-		result = database.DB.Create(&models.Teacher{
-			UserID:      user.ID,
-			TeacherName: record[1],
-			Section:     record[2],
-			Office:      record[3],
-			Phone:       record[4],
-			Email:       record[5],
-		})
-		if result.Error != nil {
+		result := database.DB.Where(models.User{Username: "114514" + record[0]}).First(&models.User{})
+		if result.Error == gorm.ErrRecordNotFound{
+			result := database.DB.Create(&models.User{Username: "114514" + record[0], Password: "114514", Type: 2, Avartar: GetAvartar(),})
+			if result.Error != nil {
+				return result.Error
+			}
+			user, err := GetUserByUsername("114514" + record[0])
+			if err != nil {
+				return err
+			}
+			result = database.DB.Create(&models.Teacher{
+				UserID:      user.ID,
+				TeacherName: record[1],
+				Section:     record[2],
+				Office:      record[3],
+				Phone:       record[4],
+				Email:       record[5],
+			})
+			if result.Error != nil {
+				return result.Error
+			}
+		}else if result.Error == nil {
+			return nil
+		}else{
 			return result.Error
 		}
 	}

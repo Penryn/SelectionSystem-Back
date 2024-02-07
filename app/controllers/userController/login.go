@@ -57,7 +57,7 @@ func Login(c *gin.Context) {
 					Username: data.Username,
 					Password: data.Password,
 					Type:     data.Type,
-					Avartar: userService.GetAvatar(),
+					Avartar: userService.GetAvartar(),
 				})
 				if err != nil {
 					utils.JsonErrorResponse(c, apiException.ServerError)
