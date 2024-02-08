@@ -21,7 +21,7 @@ func Retrieve(c *gin.Context) {
 		return
 	}
 	//获取用户id
-	userID, er := c.Get("UserID")
+	userID, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.NoThatWrong)
 		return
