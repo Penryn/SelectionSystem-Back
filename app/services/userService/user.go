@@ -1,6 +1,8 @@
 package userService
 
 import (
+	"time"
+
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 
@@ -47,6 +49,13 @@ func GetUserByID(id int) (models.User, error) {
 	result := database.DB.Where(models.User{ID: id}).First(&user)
 	return user, result.Error
 }
+
+func GetStudentByStudentID(sid string) (models.Student, error) {
+	var student models.Student
+	result := database.DB.Where(models.Student{StudentID: sid}).First(&student)
+	return student, result.Error
+}
+
 
 func UpdatePassword(user models.User, newPassword string) error {
 	result := database.DB.Model(&user).Update("password", newPassword)
@@ -107,4 +116,47 @@ func ImportTeacherExcel() error {
 		}
 	}
 	return nil
+}
+
+func SendConversation(userAID int, userBID int, message string) error {
+	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message,Time: time.Now()})
+	return result.Error
+}
+
+func GetConversation(userAID int, userBID int) ([]models.Conversation, error) {
+	var conversation []models.Conversation
+	result := database.DB.Where(models.Conversation{UserAID: userAID, UserBID: userBID}).Or(models.Conversation{UserAID: userBID, UserBID: userAID}).Find(&conversation)
+	return conversation, result.Error
+}
+
+func CreateReason(userID int, reason string) error {
+	result := database.DB.Create(&models.Reason{UserID: userID, ReasonName: reason})
+	return result.Error
+}
+
+func UpdateReason(userID int,reasonID int, reason string) error {
+	result := database.DB.Model(&models.Reason{ID: reasonID,UserID: userID}).Update("reason_name", reason)
+	return result.Error
+}
+
+func DeleteReason(userID int,reasonID int) error {
+	result := database.DB.Where(models.Reason{ID: reasonID,UserID: userID}).Delete(&models.Reason{})
+	return result.Error
+}
+
+func GetReasons(userID int) ([]models.Reason, error) {
+	var reasons []models.Reason
+	result := database.DB.Where(models.Reason{UserID: userID}).Find(&reasons)
+	return reasons, result.Error
+}
+
+func GetReasonByID(id int) (models.Reason, error) {
+	var reason models.Reason
+	result := database.DB.Where(models.Reason{ID: id}).First(&reason)
+	return reason, result.Error
+}
+
+func PostReason(userAID int, userBID int,message string) error {
+	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message,Time: time.Now()})
+	return result.Error
 }

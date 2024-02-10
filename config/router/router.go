@@ -15,6 +15,13 @@ func Init(r *gin.Engine) {
 		user:=api.Group("/user").Use(midwares.JWTAuthMiddleware())
 		{
 			user.PUT("/reset", userController.Retrieve)
+			user.POST("/message", userController.SendConversation)
+			user.GET("/message", userController.GetConversation)
+			user.POST("/reason", userController.CreateReason)
+			user.PUT("/reason", userController.UpdateReason)
+			user.DELETE("/reason", userController.DeleteReason)
+			user.GET("/reason", userController.GetReasons)
+			user.POST("/post-reason", userController.PostReason)
 		}
 	}
 }

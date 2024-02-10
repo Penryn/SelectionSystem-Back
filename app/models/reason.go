@@ -1,6 +1,7 @@
 package models
 
 type Reason struct {
-	Id   int  `json:"id"`
+	ID   int  `json:"id"`
+	UserID int `json:"user_id"` //用户id
 	ReasonName string `json:"reason_name"` //原因名称
 }
