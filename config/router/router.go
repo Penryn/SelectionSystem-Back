@@ -1,9 +1,12 @@
 package router
 
 import (
+	"SelectionSystem-Back/app/controllers/adminController"
+	"SelectionSystem-Back/app/controllers/studentController"
+	"SelectionSystem-Back/app/controllers/teancherController"
 	"SelectionSystem-Back/app/controllers/userController"
-
 	"SelectionSystem-Back/app/midwares"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +15,7 @@ func Init(r *gin.Engine) {
 	api := r.Group(pre)
 	{
 		api.POST("/login", userController.Login)
-		user:=api.Group("/user").Use(midwares.JWTAuthMiddleware())
+		user := api.Group("/user").Use(midwares.JWTAuthMiddleware())
 		{
 			user.PUT("/reset", userController.Retrieve)
 			user.POST("/message", userController.SendConversation)
@@ -26,7 +29,7 @@ func Init(r *gin.Engine) {
 			user.GET("/teacher/time", userController.GetTeacherDDL)
 			user.POST("avatar", studentController.UploadAvatar)
 		}
-		admin:=api.Group("/admin").Use(midwares.JWTAuthMiddleware())
+		admin := api.Group("/admin").Use(midwares.JWTAuthMiddleware())
 		{
 			admin.POST("/time", adminController.SetDDL)
 			admin.GET("/advice", adminController.GetAdvice)
