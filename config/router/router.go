@@ -1,10 +1,12 @@
 package router
 
 import (
+	"SelectionSystem-Back/app/controllers/adminController"
 	"SelectionSystem-Back/app/controllers/userController"
 
-	"github.com/gin-gonic/gin"
 	"SelectionSystem-Back/app/midwares"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Init(r *gin.Engine) {
@@ -22,6 +24,14 @@ func Init(r *gin.Engine) {
 			user.DELETE("/reason", userController.DeleteReason)
 			user.GET("/reason", userController.GetReasons)
 			user.POST("/post-reason", userController.PostReason)
+			user.GET("/admin/time", userController.GetAdminDDL)
+			user.GET("/teacher/time", userController.GetTeacherDDL)
+		}
+		admin:=api.Group("/admin").Use(midwares.JWTAuthMiddleware())
+		{
+			admin.POST("/time", adminController.SetDDL)
+			admin.GET("/advice", adminController.GetAdvice)
+			admin.PUT("/reset", adminController.Reset)
 		}
 	}
 }

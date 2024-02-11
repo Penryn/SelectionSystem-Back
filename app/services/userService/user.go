@@ -55,6 +55,13 @@ func GetStudentByStudentID(sid string) (models.Student, error) {
 	return student, result.Error
 }
 
+func GetStudentByID(id int) (models.Student, error) {
+	var student models.Student
+	result := database.DB.Where(models.Student{UserID: id}).First(&student)
+	return student, result.Error
+}
+
+
 func UpdatePassword(user models.User, newPassword string) error {
 	result := database.DB.Model(&user).Update("password", newPassword)
 	return result.Error
@@ -115,7 +122,7 @@ func ImportTeacherExcel() error {
 			if result.Error != nil {
 				return result.Error
 			}
-			result = database.DB.Create(&models.DDL{UserID: user.ID, DDLType: 1, FirstDDL: time.Now().AddDate(0, 1, 0), SecondDDL: time.Now().AddDate(0,2,0)})
+			result = database.DB.Omit("second_ddl").Create(&models.DDL{UserID: user.ID, DDLType: 1, FirstDDL: time.Now().AddDate(0, 1, 0)})
 			if result.Error != nil {
 				return result.Error
 			}
@@ -169,4 +176,23 @@ func GetReasonByID(id int) (models.Reason, error) {
 func PostReason(userAID int, userBID int, message string) error {
 	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message, Time: time.Now()})
 	return result.Error
+}
+
+
+func GetAdminDDL() (models.DDL,error) {
+	var ddl models.DDL
+	result:=database.DB.Where(models.DDL{DDLType: 2}).First(&ddl)
+	return ddl,result.Error
+}
+
+func GetTeacherByTeacherID(teacherID int) (models.Teacher,error) {
+	var teacher models.Teacher
+	result:=database.DB.Where(models.Teacher{UserID: teacherID}).First(&teacher)
+	return teacher,result.Error
+}
+
+func GetTeacherDDLTime(userID int) (models.DDL,error) {
+	var ddl models.DDL
+	result:=database.DB.Where(models.DDL{UserID: userID,DDLType: 1}).First(&ddl)
+	return ddl,result.Error
 }
