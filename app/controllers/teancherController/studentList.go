@@ -38,7 +38,7 @@ func GetStudentList(c *gin.Context) {
 		return
 	}
 
-	if user.Type != 2 || user.Type != 3 {
+	if user.Type != 2 && user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
@@ -93,7 +93,7 @@ func GetCheckStudentList(c *gin.Context) {
 		return
 	}
 
-	if user.Type != 2 || user.Type != 3 {
+	if user.Type != 2 && user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}

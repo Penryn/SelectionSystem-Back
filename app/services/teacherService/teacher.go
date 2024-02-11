@@ -24,6 +24,6 @@ func StudentList() ([]models.Student, error) {
 
 func StudentCheckList() ([]models.Student, error) {
 	var studentList []models.Student
-	result := database.DB.Model(models.Student{}).Where("target_agree IN (?)", []int{3, 4}).Find(&studentList)
+	result := database.DB.Model(models.Student{}).Where("target_status IN (?)", []int{3, 4}).Find(&studentList)
 	return studentList, result.Error
 }
