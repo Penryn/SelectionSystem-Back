@@ -36,6 +36,7 @@ func ParseToken(tokenStr string)(*Claims,error){
 	}
 	return nil,errors.New("invalid token")
 }
+
 func JWTAuthMiddleware()func(c *gin.Context){
 	return func(c *gin.Context) {
 		tokenStr:=c.Request.Header.Get("Authorization")
@@ -74,7 +75,7 @@ func JWTAuthMiddleware()func(c *gin.Context){
 			c.Abort()
 			return
 		}
-		c.Set("UserID",mc.UserID)
+		c.Set("ID",mc.UserID)
 		c.Next()
 	}
 }
