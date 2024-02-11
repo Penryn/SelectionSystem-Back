@@ -129,13 +129,13 @@ func GetConversation(userAID int, userBID int) ([]models.Conversation, error) {
 	return conversation, result.Error
 }
 
-func CreateReason(userID int, reason string) error {
-	result := database.DB.Create(&models.Reason{UserID: userID, ReasonName: reason})
+func CreateReason(userID int, reason_name,reason_content string) error {
+	result := database.DB.Create(&models.Reason{UserID: userID, ReasonName: reason_name, ReasonContent: reason_content})
 	return result.Error
 }
 
-func UpdateReason(userID int,reasonID int, reason string) error {
-	result := database.DB.Model(&models.Reason{ID: reasonID,UserID: userID}).Update("reason_name", reason)
+func UpdateReason(userID int,reasonID int, reason_name,reason_content string) error {
+	result := database.DB.Model(&models.Reason{ID: reasonID,UserID: userID}).Updates(models.Reason{ReasonName: reason_name, ReasonContent: reason_content})
 	return result.Error
 }
 

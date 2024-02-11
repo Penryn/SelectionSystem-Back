@@ -4,14 +4,13 @@ import (
 	"SelectionSystem-Back/app/apiException"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
 type CreateReasonData struct {
-	UserID int    `json:"user_id"`
-	Reason string `json:"reason"`
+	ReasonName    string `json:"reason_name"`    //原因名称
+	ReasonContent string `json:"reason_content"` //原因内容
 }
 
 func CreateReason(c *gin.Context) {
@@ -35,12 +34,12 @@ func CreateReason(c *gin.Context) {
 		return
 	}
 	//鉴权
-	if user.Type != 2&&user.Type != 3{
+	if user.Type != 2 && user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
 	//创建原因
-	err = userService.CreateReason(user.ID, data.Reason)
+	err = userService.CreateReason(user.ID, data.ReasonName, data.ReasonContent)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -49,8 +48,10 @@ func CreateReason(c *gin.Context) {
 }
 
 type UpdateReasonData struct {
-	ReasonID int    `json:"reason_id"`
-	Reason   string `json:"reason"`
+	ReasonID      int    `json:"reason_id"`
+	ReasonName    string `json:"reason_name"`    //原因名称
+	ReasonContent string `json:"reason_content"` //原因内容
+
 }
 
 func UpdateReason(c *gin.Context) {
@@ -74,7 +75,7 @@ func UpdateReason(c *gin.Context) {
 		return
 	}
 	//鉴权
-	if user.Type != 2&&user.Type != 3{
+	if user.Type != 2 && user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
@@ -85,7 +86,7 @@ func UpdateReason(c *gin.Context) {
 		return
 	}
 	//更新原因
-	err = userService.UpdateReason(user.ID, data.ReasonID, data.Reason)
+	err = userService.UpdateReason(user.ID, data.ReasonID, data.ReasonName, data.ReasonContent)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -118,7 +119,7 @@ func DeleteReason(c *gin.Context) {
 		return
 	}
 	//鉴权
-	if user.Type != 2&&user.Type != 3{
+	if user.Type != 2 && user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
@@ -132,8 +133,9 @@ func DeleteReason(c *gin.Context) {
 }
 
 type GetReasonResponse struct {
-	ID     int    `json:"id"`
-	Reason string `json:"reason"`
+	ID            int    `json:"id"`
+	ReasonName    string `json:"reason_name"`    //原因名称
+	ReasonContent string `json:"reason_content"` //原因内容
 }
 
 func GetReasons(c *gin.Context) {
@@ -151,7 +153,7 @@ func GetReasons(c *gin.Context) {
 		return
 	}
 	//鉴权
-	if user.Type != 2&&user.Type != 3{
+	if user.Type != 2 && user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
@@ -163,14 +165,14 @@ func GetReasons(c *gin.Context) {
 	}
 	var response []GetReasonResponse
 	for _, reason := range reasons {
-		response = append(response, GetReasonResponse{ID: reason.ID, Reason: reason.ReasonName})
+		response = append(response, GetReasonResponse{ID: reason.ID, ReasonName: reason.ReasonName, ReasonContent: reason.ReasonContent})
 	}
 	utils.JsonSuccessResponse(c, response)
 }
 
 type PostReasonData struct {
 	StudentID string `json:"student_id"`
-	ReasonID    int `json:"reason_id"`
+	ReasonID  int    `json:"reason_id"`
 }
 
 func PostReason(c *gin.Context) {
@@ -194,7 +196,7 @@ func PostReason(c *gin.Context) {
 		return
 	}
 	//鉴权
-	if user.Type != 2&&user.Type != 3{
+	if user.Type != 2 && user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
