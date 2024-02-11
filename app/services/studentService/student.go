@@ -32,18 +32,9 @@ func CreateStudentInfo(userId int, info models.Student) error {
 	return nil
 }
 
-func CreateDDLRecord(ddlRecord models.DDL) error {
-	result := database.DB.Model(models.DDL{}).Create(&ddlRecord)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
-func GetAdminDDL(userId int) (*models.DDL, error) {
+func GetAdminDDL() (*models.DDL, error) {
 	var adminDDL *models.DDL
 	result := database.DB.Model(models.DDL{
-		UserID:  userId,
 		DDLType: 2,
 	}).First(&adminDDL)
 	if result.Error != nil {
@@ -114,6 +105,15 @@ func GetTeacherByTeacherID(teacherId int) (*models.Teacher, error) {
 		ID: teacherId,
 	}).First(&teacher)
 	return teacher, result.Error
+}
+
+func GetTeacherDDLByUserID(userId int) (models.DDL, error) {
+	var ddl models.DDL
+	result := database.DB.Where(models.DDL{
+		UserID:  userId,
+		DDLType: 1,
+	})
+	return ddl, result.Error
 }
 
 func GetUserByID(id int) (*models.User, error) {

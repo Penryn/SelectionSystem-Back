@@ -29,14 +29,7 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
-	//获取用户身份token
-	userId, er := c.Get("UserID")
-	if !er {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	adminDDL, err := studentService.GetAdminDDL(userId.(int))
+	adminDDL, err := studentService.GetAdminDDL()
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -49,6 +42,14 @@ func GetTeacherList(c *gin.Context) {
 
 	var responseTeacherList []models.Teacher
 	for _, teacher := range teacherList {
+		teacherDDL, err := studentService.GetTeacherDDLByUserID(teacher.UserID)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		if currentTime.After(teacherDDL.FirstDDL) {
+			continue
+		}
 		studentCount, err := studentService.CheckTeacherList(teacher)
 		if err != nil {
 			utils.JsonErrorResponse(c, apiException.ServerError)

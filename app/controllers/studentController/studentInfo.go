@@ -74,14 +74,6 @@ func CreatePersonalInfo(c *gin.Context) {
 		return
 	}
 
-	err = studentService.CreateDDLRecord(models.DDL{
-		UserID: userId.(int),
-	})
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
 	utils.JsonSuccessResponse(c, nil)
 }
 
