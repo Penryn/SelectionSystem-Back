@@ -2,17 +2,17 @@ package userService
 
 import (
 	"github.com/xuri/excelize/v2"
-	"gorm.io/gorm"
 
 	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/config/config"
 	"SelectionSystem-Back/config/database"
+	"fmt"
 	"math/rand"
 )
 
 func CreateUser(user models.User) error {
 	result_a := database.DB.Create(&user)
-	result_b := database.DB.Create(&models.Student{UserID: user.ID, StudentID: user.Username})
+	result_b := database.DB.Omit("teacher_id").Create(&models.Student{UserID: user.ID, StudentID: user.Username}).Omit()
 	if result_a.Error != nil {
 		return result_a.Error
 	} else if result_b.Error != nil {
@@ -57,40 +57,34 @@ func CreateAdministrator() error {
 func ImportTeacherExcel() error {
 	file, err := excelize.OpenFile("德育导师名单.xlsx")
 	if err != nil {
+		fmt.Println(1)
 		return err
 	}
 	records, err := file.GetRows("Sheet1")
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 	for i, record := range records {
 		if i == 0 || i == 1 {
 			continue
 		}
-		result := database.DB.Where(models.User{Username: "114514" + record[0]}).First(&models.User{})
-		if result.Error == gorm.ErrRecordNotFound{
-			result := database.DB.Create(&models.User{Username: "114514" + record[0], Password: "114514", Type: 2, Avartar: GetAvartar(),})
-			if result.Error != nil {
-				return result.Error
-			}
-			user, err := GetUserByUsername("114514" + record[0])
-			if err != nil {
-				return err
-			}
-			result = database.DB.Create(&models.Teacher{
-				UserID:      user.ID,
-				TeacherName: record[1],
-				Section:     record[2],
-				Office:      record[3],
-				Phone:       record[4],
-				Email:       record[5],
-			})
-			if result.Error != nil {
-				return result.Error
-			}
-		}else if result.Error == nil {
-			return nil
-		}else{
+		result := database.DB.Create(&models.User{Username: "114514" + record[0], Password: "114514", Type: 2})
+		if result.Error != nil {
+			return result.Error
+		}
+		user, err := GetUserByUsername("114514" + record[0])
+		if err != nil {
+			return err
+		}
+		result = database.DB.Create(&models.Teacher{
+			UserID:      user.ID,
+			TeacherName: record[1],
+			Section:     record[2],
+			Office:      record[3],
+			Phone:       record[4],
+			Email:       record[5],
+		})
+		if result.Error != nil {
 			return result.Error
 		}
 	}
