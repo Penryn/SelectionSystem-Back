@@ -43,7 +43,6 @@ func GetAvartar() string {
 	return avatars[randomIndex]
 }
 
-
 func GetUserByID(id int) (models.User, error) {
 	var user models.User
 	result := database.DB.Where(models.User{ID: id}).First(&user)
@@ -55,7 +54,6 @@ func GetStudentByStudentID(sid string) (models.Student, error) {
 	result := database.DB.Where(models.Student{StudentID: sid}).First(&student)
 	return student, result.Error
 }
-
 
 func UpdatePassword(user models.User, newPassword string) error {
 	result := database.DB.Model(&user).Update("password", newPassword)
@@ -71,6 +69,14 @@ func CreateAdministrator() error {
 		return nil
 	}
 	result := database.DB.Create(&models.User{Username: uname, Password: upass, Type: 3})
+	if result.Error != nil {
+		return result.Error
+	}
+	user, err := GetUserByUsername(uname)
+	if err != nil {
+		return err
+	}
+	result = database.DB.Create(&models.DDL{UserID: user.ID, DDLType: 2, FirstDDL: time.Now().AddDate(0, 1, 0), SecondDDL: time.Now().AddDate(0,2,0)})
 	return result.Error
 }
 
@@ -81,16 +87,16 @@ func ImportTeacherExcel() error {
 		return err
 	}
 	records, err := file.GetRows("Sheet1")
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 	for i, record := range records {
 		if i == 0 || i == 1 {
 			continue
 		}
 		result := database.DB.Where(models.User{Username: "114514" + record[0]}).First(&models.User{})
-		if result.Error == gorm.ErrRecordNotFound{
-			result := database.DB.Create(&models.User{Username: "114514" + record[0], Password: "114514", Type: 2, Avartar: GetAvartar(),})
+		if result.Error == gorm.ErrRecordNotFound {
+			result := database.DB.Create(&models.User{Username: "114514" + record[0], Password: "114514", Type: 2, Avartar: GetAvartar()})
 			if result.Error != nil {
 				return result.Error
 			}
@@ -109,9 +115,13 @@ func ImportTeacherExcel() error {
 			if result.Error != nil {
 				return result.Error
 			}
-		}else if result.Error == nil {
+			result = database.DB.Create(&models.DDL{UserID: user.ID, DDLType: 1, FirstDDL: time.Now().AddDate(0, 1, 0), SecondDDL: time.Now().AddDate(0,2,0)})
+			if result.Error != nil {
+				return result.Error
+			}
+		} else if result.Error == nil {
 			return nil
-		}else{
+		} else {
 			return result.Error
 		}
 	}
@@ -119,7 +129,7 @@ func ImportTeacherExcel() error {
 }
 
 func SendConversation(userAID int, userBID int, message string) error {
-	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message,Time: time.Now()})
+	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message, Time: time.Now()})
 	return result.Error
 }
 
@@ -129,18 +139,18 @@ func GetConversation(userAID int, userBID int) ([]models.Conversation, error) {
 	return conversation, result.Error
 }
 
-func CreateReason(userID int, reason_name,reason_content string) error {
+func CreateReason(userID int, reason_name, reason_content string) error {
 	result := database.DB.Create(&models.Reason{UserID: userID, ReasonName: reason_name, ReasonContent: reason_content})
 	return result.Error
 }
 
-func UpdateReason(userID int,reasonID int, reason_name,reason_content string) error {
-	result := database.DB.Model(&models.Reason{ID: reasonID,UserID: userID}).Updates(models.Reason{ReasonName: reason_name, ReasonContent: reason_content})
+func UpdateReason(userID int, reasonID int, reason_name, reason_content string) error {
+	result := database.DB.Model(&models.Reason{ID: reasonID, UserID: userID}).Updates(models.Reason{ReasonName: reason_name, ReasonContent: reason_content})
 	return result.Error
 }
 
-func DeleteReason(userID int,reasonID int) error {
-	result := database.DB.Where(models.Reason{ID: reasonID,UserID: userID}).Delete(&models.Reason{})
+func DeleteReason(userID int, reasonID int) error {
+	result := database.DB.Where(models.Reason{ID: reasonID, UserID: userID}).Delete(&models.Reason{})
 	return result.Error
 }
 
@@ -156,7 +166,7 @@ func GetReasonByID(id int) (models.Reason, error) {
 	return reason, result.Error
 }
 
-func PostReason(userAID int, userBID int,message string) error {
-	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message,Time: time.Now()})
+func PostReason(userAID int, userBID int, message string) error {
+	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message, Time: time.Now()})
 	return result.Error
 }

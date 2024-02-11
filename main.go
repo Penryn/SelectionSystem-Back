@@ -24,6 +24,7 @@ func main() {
 	r.NoRoute(midwares.HandleNotFound)
 	userService.CreateAdministrator()
 	userService.ImportTeacherExcel()
+	r.Static("/static","./static")
 	router.Init(r)
 	err:=r.Run()
 	if err !=nil{
