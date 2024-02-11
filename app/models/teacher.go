@@ -9,4 +9,5 @@ type Teacher struct {
 	Phone       string    `json:"phone"`        //电话
 	Email       string    `json:"email"`        //邮箱
 	Students    []Student `json:"students"`     //学生
+	StudentsNum int       `json:"students_num"` //学生数量
 }

@@ -27,7 +27,7 @@ func Init(r *gin.Engine) {
 			user.POST("/post-reason", userController.PostReason)
 			user.GET("/admin/time", userController.GetAdminDDL)
 			user.GET("/teacher/time", userController.GetTeacherDDL)
-			user.POST("avatar", studentController.UploadAvatar)
+			user.POST("/avatar", userController.UploadAvatar)
 		}
 		admin := api.Group("/admin").Use(midwares.JWTAuthMiddleware())
 		{

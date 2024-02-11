@@ -10,8 +10,6 @@ import (
 )
 
 type StudentInfoData struct {
-	ID              int    `json:"id"`
-	UserID          int    `json:"user_id"`
 	Name            string `json:"name" binding:"required"`
 	StudentID       string `json:"student_id" binding:"required"`
 	Class           string `json:"class" binding:"required"`
@@ -23,7 +21,6 @@ type StudentInfoData struct {
 	Experience      string `json:"experience" binding:"required"`
 	Honor           string `json:"honor" binding:"required"`
 	Interest        string `json:"interest" binding:"required"`
-	TargetID        int    `json:"teacher_id" binding:"required"`
 }
 
 // 填写学生个人信息
@@ -67,7 +64,7 @@ func CreatePersonalInfo(c *gin.Context) {
 		Experience:      data.Experience,
 		Honor:           data.Honor,
 		Interest:        data.Interest,
-		TargetID:        data.TargetID,
+
 	})
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -207,7 +204,6 @@ func UpdateStudentInfo(c *gin.Context) {
 		Experience:      data.Experience,
 		Honor:           data.Honor,
 		Interest:        data.Interest,
-		TargetID:        data.TargetID,
 	})
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)

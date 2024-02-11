@@ -124,16 +124,3 @@ func GetUserByID(id int) (*models.User, error) {
 	return &user, result.Error
 }
 
-func UpdateAvatar(userId int, avatar string) error {
-	var user *models.User
-	if err := database.DB.Where(models.User{
-		ID: userId,
-	}).First(&user).Error; err != nil {
-		return err
-	}
-	user.Avartar = avatar
-	if err := database.DB.Save(&user).Error; err != nil {
-		return err
-	}
-	return nil
-}

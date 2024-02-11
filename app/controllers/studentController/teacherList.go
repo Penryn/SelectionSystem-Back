@@ -6,7 +6,6 @@ import (
 	"SelectionSystem-Back/app/services/studentService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 type PageData struct {
@@ -29,37 +28,15 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
-	adminDDL, err := studentService.GetAdminDDL()
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-	currentTime := time.Now()
-	if currentTime.After(adminDDL.FirstDDL) {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
 	var responseTeacherList []models.Teacher
 	for _, teacher := range teacherList {
-		teacherDDL, err := studentService.GetTeacherDDLByUserID(teacher.UserID)
 		if err != nil {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
-		}
-		if currentTime.After(teacherDDL.FirstDDL) {
-			continue
-		}
-		studentCount, err := studentService.CheckTeacherList(teacher)
-		if err != nil {
-			utils.JsonErrorResponse(c, apiException.ServerError)
-			return
-		}
-		if studentCount >= 6 {
-			continue
 		}
 		response := models.Teacher{
 			ID:          teacher.ID,
+			UserID:      teacher.UserID,
 			TeacherName: teacher.TeacherName,
 			Section:     teacher.Section,
 			Office:      teacher.Office,

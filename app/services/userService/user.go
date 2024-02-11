@@ -196,3 +196,17 @@ func GetTeacherDDLTime(userID int) (models.DDL,error) {
 	result:=database.DB.Where(models.DDL{UserID: userID,DDLType: 1}).First(&ddl)
 	return ddl,result.Error
 }
+
+func UpdateAvatar(userId int, avatar string) error {
+	var user *models.User
+	if err := database.DB.Where(models.User{
+		ID: userId,
+	}).First(&user).Error; err != nil {
+		return err
+	}
+	user.Avartar = avatar
+	if err := database.DB.Save(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}
