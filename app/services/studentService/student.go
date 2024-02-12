@@ -78,36 +78,19 @@ func UpdateTargetTeacher(userId, targetId int, info *models.Student) error {
 	return nil
 }
 
-func GetTeacherList() ([]models.Teacher, error) {
+func GetTeacherList(pageNum, pageSize int) ([]models.Teacher, error) {
 	var teacherList []models.Teacher
-	result := database.DB.Find(&teacherList)
+	result := database.DB.Model(models.Teacher{}).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&teacherList)
 	return teacherList, result.Error
 }
 
-func CheckTeacherList(teacher models.Teacher) (int64, error) {
-	var studentCount int64
-	result := database.DB.Model(&models.Student{}).Where(models.Student{
-		TeacherID: teacher.ID,
-	}).Count(&studentCount)
-	return studentCount, result.Error
-}
-
-func PageTeacherList(responseTeacherList []models.Teacher, page_num, page_size int) ([]models.Teacher, int) {
-	totalItems := len(responseTeacherList)
-	totalPageNum := totalItems / page_size
-	if totalItems%page_size != 0 {
-		totalPageNum++
+func GetTotalPageNum() (*int64, error) {
+	var pageNum int64
+	result := database.DB.Model(models.Teacher{}).Count(&pageNum)
+	if result.Error != nil {
+		return nil, result.Error
 	}
-	startIndex := (page_num - 1) * page_size
-	endIndex := startIndex + page_size
-	if endIndex > totalItems {
-		endIndex = totalItems
-	}
-	if startIndex > totalItems {
-		startIndex = totalItems
-	}
-	paginatedList := responseTeacherList[startIndex:endIndex]
-	return paginatedList, totalPageNum
+	return &pageNum, nil
 }
 
 func GetTeacherByTeacherID(teacherId int) (*models.Teacher, error) {

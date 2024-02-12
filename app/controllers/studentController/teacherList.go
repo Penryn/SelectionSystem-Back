@@ -6,6 +6,7 @@ import (
 	"SelectionSystem-Back/app/services/studentService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
+	"math"
 )
 
 type PageData struct {
@@ -22,7 +23,14 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
-	teacherList, err := studentService.GetTeacherList()
+	teacherList, err := studentService.GetTeacherList(data.PageNum, data.PageSize)
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	var totalPageNum *int64
+	totalPageNum, err = studentService.GetTotalPageNum()
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -42,14 +50,13 @@ func GetTeacherList(c *gin.Context) {
 			Office:      teacher.Office,
 			Phone:       teacher.Phone,
 			Email:       teacher.Email,
+			StudentsNum: teacher.StudentsNum,
 		}
 		responseTeacherList = append(responseTeacherList, response)
 	}
 
-	pageTeacherList, totalPageNum := studentService.PageTeacherList(responseTeacherList, data.PageNum, data.PageSize)
-
 	utils.JsonSuccessResponse(c, gin.H{
-		"total_page_num": totalPageNum,
-		"data":           pageTeacherList,
+		"total_page_num": math.Ceil(float64(*totalPageNum) / float64(data.PageSize)),
+		"data":           responseTeacherList,
 	})
 }
