@@ -51,6 +51,7 @@ func Init(r *gin.Engine) {
 			teacher.GET("student-check", teancherController.GetCheckStudentList)
 			teacher.POST("/student/post", teancherController.CheckByTeacher)
 			teacher.POST("time", teancherController.DDLSetByTeacher)
+			teacher.PUT("student", teancherController.CancelStudent)
 		}
 	}
 }

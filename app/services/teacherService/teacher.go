@@ -47,9 +47,47 @@ func GetStudentInfoByID(Id int) (*models.Student, error) {
 	return &info, nil
 }
 
+func GetStudentInfoByStudentID(studentId string) (*models.Student, error) {
+	var info models.Student
+	result := database.DB.Where(&models.Student{
+		StudentID: studentId,
+	}).First(&info)
+	if result.Error == gorm.ErrRecordNotFound {
+		info.StudentID = studentId
+		return &info, result.Error
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+	return &info, nil
+}
+
+func GetTeacherByTeacherID(teacherId int) (*models.Teacher, error) {
+	var info models.Teacher
+	result := database.DB.Where(&models.Teacher{
+		ID: teacherId,
+	}).First(&info)
+	if result.Error == gorm.ErrRecordNotFound {
+		info.ID = teacherId
+		return &info, result.Error
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+	return &info, nil
+}
+
 func UpdateStudentInfo(Id int, info *models.Student) error {
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
 		ID: Id,
+	}).Updates(&info)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func UpdateStudentInfoByStudentID(studentId string, info *models.Student) error {
+	result := database.DB.Model(models.Student{}).Where(&models.Student{
+		StudentID: studentId,
 	}).Updates(&info)
 	if result.Error != nil {
 		return result.Error
@@ -73,4 +111,22 @@ func GetAdminDDL() (models.DDL, error) {
 	var ddl models.DDL
 	result := database.DB.Where(models.DDL{DDLType: 2}).First(&ddl)
 	return ddl, result.Error
+}
+
+func UpdateTeacher(Id int, teacher *models.Teacher) error {
+	result := database.DB.Model(models.Teacher{}).Where(&models.Teacher{
+		ID: Id,
+	}).Updates(&teacher)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func GetStudentList(teacherId int) ([]models.Student, error) {
+	var studentList []models.Student
+	result := database.DB.Model(models.Student{}).Where(models.Student{
+		TeacherID: teacherId,
+	}).Find(&studentList)
+	return studentList, result.Error
 }
