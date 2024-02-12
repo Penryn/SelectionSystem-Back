@@ -4,6 +4,7 @@ import (
 	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/config/database"
 	"gorm.io/gorm"
+	"time"
 )
 
 func GetUserByID(id int) (*models.User, error) {
@@ -54,4 +55,22 @@ func UpdateStudentInfo(Id int, info *models.Student) error {
 		return result.Error
 	}
 	return nil
+}
+
+func SetDDL(time time.Time, check, userId int) error {
+	var result *gorm.DB
+	if check == 1 {
+		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("first_time", time)
+		return result.Error
+	} else if check == 2 {
+		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("second_time", time)
+		return result.Error
+	}
+	return result.Error
+}
+
+func GetAdminDDL() (models.DDL, error) {
+	var ddl models.DDL
+	result := database.DB.Where(models.DDL{DDLType: 2}).First(&ddl)
+	return ddl, result.Error
 }
