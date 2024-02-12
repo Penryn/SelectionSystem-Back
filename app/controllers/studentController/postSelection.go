@@ -5,7 +5,6 @@ import (
 	"SelectionSystem-Back/app/services/studentService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -40,7 +39,7 @@ func PostTeacher(c *gin.Context) {
 	}
 
 	targetTeacher, err := studentService.GetTeacherByTeacherID(data.TargetID)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}

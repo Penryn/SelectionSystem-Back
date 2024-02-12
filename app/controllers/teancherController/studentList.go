@@ -8,6 +8,7 @@ import (
 )
 
 type Student struct {
+	ID              int    `json:"id" binding:"required"`
 	Name            string `json:"name" binding:"required"`
 	StudentID       string `json:"student_id" binding:"required"`
 	Class           string `json:"class" binding:"required"`
@@ -43,7 +44,12 @@ func GetStudentList(c *gin.Context) {
 		return
 	}
 
-	studentList, err := teacherService.StudentList(userId.(int))
+	teacher, err := teacherService.GetTeacherByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	studentList, err := teacherService.StudentList(teacher.ID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -58,6 +64,7 @@ func GetStudentList(c *gin.Context) {
 		}
 
 		response := Student{
+			ID:              student.ID,
 			StudentID:       student.StudentID,
 			Name:            student.Name,
 			Class:           student.Class,
@@ -98,7 +105,12 @@ func GetCheckStudentList(c *gin.Context) {
 		return
 	}
 
-	studentList, err := teacherService.StudentCheckList(userId.(int))
+	teacher, err := teacherService.GetTeacherByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	studentList, err := teacherService.StudentCheckList(teacher.ID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -113,6 +125,7 @@ func GetCheckStudentList(c *gin.Context) {
 		}
 
 		response := Student{
+			ID:              student.ID,
 			StudentID:       student.StudentID,
 			Name:            student.Name,
 			Class:           student.Class,

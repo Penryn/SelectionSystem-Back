@@ -114,12 +114,17 @@ func GetStudentInfo(c *gin.Context) {
 		return
 	}
 
-	targetTeacher, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
+	var targetTeacherName string
+	if studentInfo.TargetID == 0 {
+		targetTeacherName = "无"
+	} else {
+		targetTeacher, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		targetTeacherName = targetTeacher.TeacherName
 	}
-
 	var ultimateTeacherName string
 	if studentInfo.TeacherID == 0 {
 		ultimateTeacherName = "无"
@@ -146,7 +151,7 @@ func GetStudentInfo(c *gin.Context) {
 		Interest:        studentInfo.Interest,
 		Avatar:          user.Avartar,
 		TeacherName:     ultimateTeacherName,
-		TargetName:      targetTeacher.TeacherName,
+		TargetName:      targetTeacherName,
 		TargetAgree:     studentInfo.TargetStatus,
 		AdminAgree:      studentInfo.AdminStatus,
 	}

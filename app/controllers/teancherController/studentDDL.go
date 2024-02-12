@@ -57,6 +57,9 @@ func DDLSetByTeacher(c *gin.Context) {
 		if ddlTime.After(adminDDL.SecondDDL) {
 			ddlTime = adminDDL.SecondDDL
 		}
+		if ddlTime.Before(adminDDL.FirstDDL) {
+			ddlTime = adminDDL.SecondDDL
+		}
 	} else {
 		utils.JsonErrorResponse(c, apiException.ParamError)
 		return

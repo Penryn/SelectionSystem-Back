@@ -6,11 +6,12 @@ import (
 	"SelectionSystem-Back/app/services/studentService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type AdviceData struct {
 	Advice    string `json:"advice" binding:"required"`
-	Anonymity bool   `json:"anonymity" binding:"required"`
+	Anonymity *bool  `json:"anonymity"`
 }
 
 func AdvicePost(c *gin.Context) {
@@ -27,10 +28,16 @@ func AdvicePost(c *gin.Context) {
 		return
 	}
 
+	if data.Anonymity == nil {
+		anonymity := false
+		data.Anonymity = &anonymity
+	}
+
 	err = studentService.CreateAdvice(models.Advice{
-		UserID:    userId.(int),
-		Content:   data.Advice,
-		Anonymity: data.Anonymity,
+		UserID:     userId.(int),
+		Content:    data.Advice,
+		Anonymity:  *data.Anonymity,
+		CreateTime: time.Now(),
 	})
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)

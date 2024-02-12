@@ -17,11 +17,9 @@ func GetUserByID(id int) (*models.User, error) {
 
 func StudentList(targetId int) ([]models.Student, error) {
 	var studentList []models.Student
-	result := database.DB.Model(models.Student{}).Where(models.Student{
-		TargetID:     targetId,
-		TargetStatus: 0,
-		AdminStatus:  0,
-	}).Find(&studentList)
+	result := database.DB.Model(models.Student{}).Where(&models.Student{
+		TargetID: targetId,
+	}).Where("target_status = ? AND admin_status = ?", 0, 0).Find(&studentList)
 	return studentList, result.Error
 }
 
@@ -75,6 +73,20 @@ func GetTeacherByTeacherID(teacherId int) (*models.Teacher, error) {
 	return &info, nil
 }
 
+func GetTeacherByUserID(userId int) (*models.Teacher, error) {
+	var info models.Teacher
+	result := database.DB.Where(&models.Teacher{
+		UserID: userId,
+	}).First(&info)
+	if result.Error == gorm.ErrRecordNotFound {
+		info.UserID = userId
+		return &info, result.Error
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+	return &info, nil
+}
+
 func UpdateStudentInfo(Id int, info *models.Student) error {
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
 		ID: Id,
@@ -98,10 +110,10 @@ func UpdateStudentInfoByStudentID(studentId string, info *models.Student) error 
 func SetDDL(time time.Time, check, userId int) error {
 	var result *gorm.DB
 	if check == 1 {
-		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("first_time", time)
+		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("first_ddl", time)
 		return result.Error
 	} else if check == 2 {
-		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("second_time", time)
+		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("second_ddl", time)
 		return result.Error
 	}
 	return result.Error

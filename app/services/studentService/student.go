@@ -106,7 +106,7 @@ func GetTeacherDDLByUserID(userId int) (models.DDL, error) {
 	result := database.DB.Where(models.DDL{
 		UserID:  userId,
 		DDLType: 1,
-	})
+	}).First(&ddl)
 	return ddl, result.Error
 }
 
