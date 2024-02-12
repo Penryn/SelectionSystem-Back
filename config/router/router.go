@@ -41,6 +41,7 @@ func Init(r *gin.Engine) {
 			student.GET("/info", studentController.GetStudentInfo)
 			student.PUT("/info", studentController.UpdateStudentInfo)
 			student.GET("/teacher", studentController.GetTeacherList)
+			student.POST("choose-teacher", studentController.PostTeacher)
 		}
 		teacher := api.Group("/teacher").Use(midwares.JWTAuthMiddleware())
 		{

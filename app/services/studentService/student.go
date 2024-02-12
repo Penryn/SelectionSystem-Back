@@ -57,9 +57,20 @@ func GetStudentInfoByUserID(userId int) (*models.Student, error) {
 	return &info, nil
 }
 
-func UpdateStudentInfo(userID int, info models.Student) error {
+func UpdateStudentInfo(userId int, info models.Student) error {
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
-		UserID: userID,
+		UserID: userId,
+	}).Updates(&info)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func UpdateTargetTeacher(userId, targetId int, info *models.Student) error {
+	info.TargetID = targetId
+	result := database.DB.Model(models.Student{}).Where(&models.Student{
+		UserID: userId,
 	}).Updates(&info)
 	if result.Error != nil {
 		return result.Error
@@ -123,4 +134,3 @@ func GetUserByID(id int) (*models.User, error) {
 	}).First(&user)
 	return &user, result.Error
 }
-
