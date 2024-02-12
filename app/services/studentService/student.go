@@ -117,3 +117,16 @@ func GetUserByID(id int) (*models.User, error) {
 	}).First(&user)
 	return &user, result.Error
 }
+
+func CreateAdvice(advice models.Advice) error {
+	result := database.DB.Create(&advice)
+	return result.Error
+}
+
+func GetAdvice(userId int) ([]models.Advice, error) {
+	var advice []models.Advice
+	result := database.DB.Model(models.Advice{}).Where(models.Advice{
+		UserID: userId,
+	}).Find(&advice)
+	return advice, result.Error
+}
