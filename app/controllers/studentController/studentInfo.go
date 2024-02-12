@@ -33,7 +33,7 @@ func CreatePersonalInfo(c *gin.Context) {
 	}
 
 	//获取用户身份token
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -64,7 +64,6 @@ func CreatePersonalInfo(c *gin.Context) {
 		Experience:      data.Experience,
 		Honor:           data.Honor,
 		Interest:        data.Interest,
-
 	})
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -96,7 +95,7 @@ type StudentData struct {
 // 获取学生个人信息
 func GetStudentInfo(c *gin.Context) {
 	//获取用户身份token
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -165,7 +164,7 @@ func UpdateStudentInfo(c *gin.Context) {
 	}
 
 	//获取用户身份token
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

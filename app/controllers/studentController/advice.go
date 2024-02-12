@@ -21,7 +21,7 @@ func AdvicePost(c *gin.Context) {
 		return
 	}
 
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -41,7 +41,7 @@ func AdvicePost(c *gin.Context) {
 }
 
 func AdviceGet(c *gin.Context) {
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

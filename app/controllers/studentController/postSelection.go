@@ -22,7 +22,7 @@ func PostTeacher(c *gin.Context) {
 		return
 	}
 
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

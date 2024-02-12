@@ -26,7 +26,7 @@ type Student struct {
 
 // 获取未审批的学生列表
 func GetStudentList(c *gin.Context) {
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -81,7 +81,7 @@ func GetStudentList(c *gin.Context) {
 
 // 获取已审批的学生列表
 func GetCheckStudentList(c *gin.Context) {
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
