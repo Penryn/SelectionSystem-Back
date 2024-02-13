@@ -48,8 +48,14 @@ func GetAdvice(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
+		var name string
+		if advice.Anonymity{
+			name="匿名"
+		}else{
+			name=student.Name
+		}
 		adviceResponse = append(adviceResponse, GetAdviceResponse{
-			Name:        student.Name,
+			Name:        name,
 			Advice:      advice.Content,
 			CreatedTime: advice.CreateTime,
 		})

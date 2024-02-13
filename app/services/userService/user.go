@@ -7,12 +7,14 @@ import (
 	"gorm.io/gorm"
 
 	"SelectionSystem-Back/app/models"
+	"SelectionSystem-Back/app/utils"
 	"SelectionSystem-Back/config/config"
 	"SelectionSystem-Back/config/database"
 	"math/rand"
 )
 
 func CreateUser(user models.User) error {
+	AseEncryptPassword(&user)
 	result_a := database.DB.Create(&user)
 	result_b := database.DB.Omit("teacher_id").Create(&models.Student{UserID: user.ID, StudentID: user.Username})
 	if result_a.Error != nil {
@@ -27,6 +29,9 @@ func CreateUser(user models.User) error {
 func GetUserByUsername(username string) (models.User, error) {
 	var user models.User
 	result := database.DB.Where(models.User{Username: username}).First(&user)
+	if user.Password != "" {
+		AseDecryptPassword(&user)
+	}
 	return user, result.Error
 }
 
@@ -46,23 +51,27 @@ func GetAvartar() string {
 func GetUserByID(id int) (models.User, error) {
 	var user models.User
 	result := database.DB.Where(models.User{ID: id}).First(&user)
+	AseDecryptPassword(&user)
 	return user, result.Error
 }
 
 func GetStudentByStudentID(sid string) (models.Student, error) {
 	var student models.Student
 	result := database.DB.Where(models.Student{StudentID: sid}).First(&student)
+	AseDecryptStudentInfo(&student)
 	return student, result.Error
 }
 
 func GetStudentByID(id int) (models.Student, error) {
 	var student models.Student
 	result := database.DB.Where(models.Student{UserID: id}).First(&student)
+	AseDecryptStudentInfo(&student)
 	return student, result.Error
 }
 
 
 func UpdatePassword(user models.User, newPassword string) error {
+	AseEncryptPassword(&user)
 	result := database.DB.Model(&user).Update("password", newPassword)
 	return result.Error
 }
@@ -75,11 +84,17 @@ func CreateAdministrator() error {
 	if err == nil {
 		return nil
 	}
-	result := database.DB.Create(&models.User{Username: uname, Password: upass, Type: 3})
+	var user models.User
+	user.Username = uname
+	user.Password = upass
+	user.Type = 3
+	user.Avartar = GetAvartar()
+	AseEncryptPassword(&user)
+	result := database.DB.Create(&user)
 	if result.Error != nil {
 		return result.Error
 	}
-	user, err := GetUserByUsername(uname)
+	user, err = GetUserByUsername(uname)
 	if err != nil {
 		return err
 	}
@@ -103,7 +118,13 @@ func ImportTeacherExcel() error {
 		}
 		result := database.DB.Where(models.User{Username: "114514" + record[0]}).First(&models.User{})
 		if result.Error == gorm.ErrRecordNotFound {
-			result := database.DB.Create(&models.User{Username: "114514" + record[0], Password: "114514", Type: 2, Avartar: GetAvartar()})
+			var user models.User
+			user.Username = "114514" + record[0]
+			user.Password="123456"
+			user.Type = 2
+			user.Avartar = GetAvartar()
+			AseEncryptPassword(&user)
+			result := database.DB.Create(&user)
 			if result.Error != nil {
 				return result.Error
 			}
@@ -210,3 +231,32 @@ func UpdateAvatar(userId int, avatar string) error {
 	}
 	return nil
 }
+
+func AseEncryptPassword(user *models.User){
+	user.Password = utils.AesEncrypt(user.Password)
+}
+
+func AseDecryptPassword(user *models.User){
+	user.Password = utils.AesDecrypt(user.Password)
+}
+
+func AseEncryptStudentInfo(student *models.Student){
+	student.Email = utils.AesEncrypt(student.Email)
+	student.Phone = utils.AesEncrypt(student.Phone)
+	student.Address = utils.AesEncrypt(student.Address)
+	student.Plan = utils.AesEncrypt(student.Plan)
+	student.Experience = utils.AesEncrypt(student.Experience)
+	student.Honor = utils.AesEncrypt(student.Honor)
+	student.Interest = utils.AesEncrypt(student.Interest)
+}
+
+func AseDecryptStudentInfo(student *models.Student){
+	student.Email = utils.AesDecrypt(student.Email)
+	student.Phone = utils.AesDecrypt(student.Phone)
+	student.Address = utils.AesDecrypt(student.Address)
+	student.Plan = utils.AesDecrypt(student.Plan)
+	student.Experience = utils.AesDecrypt(student.Experience)
+	student.Honor = utils.AesDecrypt(student.Honor)
+	student.Interest = utils.AesDecrypt(student.Interest)
+}
+
