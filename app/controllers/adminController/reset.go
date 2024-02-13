@@ -11,7 +11,6 @@ import (
 
 type ResetData struct {
 	User_id  int    `json:"user_id"`
-	Password string `json:"password"`
 }
 
 func Reset(c *gin.Context) {
@@ -40,7 +39,7 @@ func Reset(c *gin.Context) {
 		return
 	}
 	//重置密码
-	err = adminService.ResetPassword(data.User_id, data.Password)
+	err = adminService.ResetPassword(data.User_id)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

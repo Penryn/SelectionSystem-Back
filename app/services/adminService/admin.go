@@ -2,6 +2,7 @@ package adminService
 
 import (
 	"SelectionSystem-Back/app/models"
+	"SelectionSystem-Back/app/utils"
 	"SelectionSystem-Back/config/database"
 	"time"
 
@@ -28,7 +29,13 @@ func GetAdvices() ([]models.Advice, error) {
 }
 
 
-func ResetPassword(user_id int, password string) error {
+func ResetPassword(user_id int) error {
+	password:=aseEncrypt("123456")
 	result := database.DB.Model(&models.User{ID: user_id}).Update("password", password)
 	return result.Error
 }
+
+func aseEncrypt(data string) string {
+	return utils.AesEncrypt(data)
+}
+
