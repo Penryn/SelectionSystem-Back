@@ -4,7 +4,6 @@ import (
 	"SelectionSystem-Back/app/apiException"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
-	"fmt"
 	"image/jpeg"
 	"io"
 	"os"
@@ -102,7 +101,6 @@ func UploadAvatar(c *gin.Context) {
 
 	err = userService.UpdateAvatar(user.ID, url)
 	if err != nil {
-		fmt.Println(10)
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}

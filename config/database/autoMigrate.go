@@ -14,6 +14,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.Reason{},
 		&models.DDL{},
 		&models.Conversation{},
+		&models.Advice{},
 	)
 
 	return err
