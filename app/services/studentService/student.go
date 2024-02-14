@@ -2,12 +2,14 @@ package studentService
 
 import (
 	"SelectionSystem-Back/app/models"
+	"SelectionSystem-Back/app/utils"
 	"SelectionSystem-Back/config/database"
 	"gorm.io/gorm"
 )
 
 func StudentExistByPhone(userId int, phone string) error {
 	var StudentInfo models.Student
+	phone = utils.AesEncrypt(phone)
 	result := database.DB.Not("user_id = ?", userId).Where(models.Student{
 		Phone: phone,
 	}).First(&StudentInfo)
@@ -16,6 +18,7 @@ func StudentExistByPhone(userId int, phone string) error {
 
 func StudentExistByEmail(userId int, email string) error {
 	var StudentInfo models.Student
+	email = utils.AesEncrypt(email)
 	result := database.DB.Not("user_id = ?", userId).Where(models.Student{
 		Email: email,
 	}).First(&StudentInfo)
@@ -23,6 +26,7 @@ func StudentExistByEmail(userId int, email string) error {
 }
 
 func CreateStudentInfo(userId int, info models.Student) error {
+	aseEncryptStudentInfo(&info)
 	result := database.DB.Model(models.Student{}).Where(models.Student{
 		UserID: userId,
 	}).Updates(&info)
@@ -30,17 +34,6 @@ func CreateStudentInfo(userId int, info models.Student) error {
 		return result.Error
 	}
 	return nil
-}
-
-func GetAdminDDL() (*models.DDL, error) {
-	var adminDDL *models.DDL
-	result := database.DB.Model(models.DDL{
-		DDLType: 2,
-	}).First(&adminDDL)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return adminDDL, nil
 }
 
 func GetStudentInfoByUserID(userId int) (*models.Student, error) {
@@ -54,10 +47,12 @@ func GetStudentInfoByUserID(userId int) (*models.Student, error) {
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
+	aseDecryptStudentInfo(&info)
 	return &info, nil
 }
 
 func UpdateStudentInfo(userId int, info models.Student) error {
+	aseEncryptStudentInfo(&info)
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
 		UserID: userId,
 	}).Updates(&info)
@@ -69,6 +64,9 @@ func UpdateStudentInfo(userId int, info models.Student) error {
 
 func UpdateTargetTeacher(userId, targetId int, info *models.Student) error {
 	info.TargetID = targetId
+	info.TargetStatus = 0
+	info.AdminStatus = 0
+	aseEncryptStudentInfo(info)
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
 		UserID: userId,
 	}).Updates(&info)
@@ -93,12 +91,19 @@ func GetTotalPageNum() (*int64, error) {
 	return &pageNum, nil
 }
 
-func GetTeacherByTeacherID(teacherId int) (*models.Teacher, error) {
+func GetTeacherByTeacherID(teacherID int) (*models.Teacher, int, error) {
 	var teacher *models.Teacher
-	result := database.DB.Where(models.Teacher{
-		ID: teacherId,
-	}).First(&teacher)
-	return teacher, result.Error
+	result := database.DB.Preload("Students").Where("id = ?", teacherID).First(&teacher)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	if teacher.Students == nil {
+		return teacher, 0, nil
+	}
+	for i := range teacher.Students {
+		aseDecryptStudentInfo(&teacher.Students[i])
+	}
+	return teacher, len(teacher.Students), nil
 }
 
 func GetTeacherDDLByUserID(userId int) (models.DDL, error) {
@@ -129,4 +134,38 @@ func GetAdvice(userId int) ([]models.Advice, error) {
 		UserID: userId,
 	}).Find(&advice)
 	return advice, result.Error
+}
+
+func UpdateSelectionTable(userId int, document string) error {
+	var student *models.Student
+	if err := database.DB.Where(models.Student{
+		UserID: userId,
+	}).First(&student).Error; err != nil {
+		return err
+	}
+	student.SelectionTable = document
+	if err := database.DB.Omit("teacher_id").Save(&student).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func aseEncryptStudentInfo(student *models.Student) {
+	student.Email = utils.AesEncrypt(student.Email)
+	student.Phone = utils.AesEncrypt(student.Phone)
+	student.Address = utils.AesEncrypt(student.Address)
+	student.Plan = utils.AesEncrypt(student.Plan)
+	student.Experience = utils.AesEncrypt(student.Experience)
+	student.Honor = utils.AesEncrypt(student.Honor)
+	student.Interest = utils.AesEncrypt(student.Interest)
+}
+
+func aseDecryptStudentInfo(student *models.Student) {
+	student.Email = utils.AesDecrypt(student.Email)
+	student.Phone = utils.AesDecrypt(student.Phone)
+	student.Address = utils.AesDecrypt(student.Address)
+	student.Plan = utils.AesDecrypt(student.Plan)
+	student.Experience = utils.AesDecrypt(student.Experience)
+	student.Honor = utils.AesDecrypt(student.Honor)
+	student.Interest = utils.AesDecrypt(student.Interest)
 }

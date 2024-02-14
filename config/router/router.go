@@ -44,6 +44,7 @@ func Init(r *gin.Engine) {
 			student.POST("choose-teacher", studentController.PostTeacher)
 			student.POST("suggest", studentController.AdvicePost)
 			student.GET("get-suggest", studentController.AdviceGet)
+			student.POST("post", studentController.UploadSelectionTable)
 		}
 		teacher := api.Group("/teacher").Use(midwares.JWTAuthMiddleware())
 		{

@@ -44,7 +44,7 @@ func GetStudentList(c *gin.Context) {
 		return
 	}
 
-	teacher, err := teacherService.GetTeacherByUserID(userId.(int))
+	teacher, _, err := teacherService.GetTeacherByUserID(userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -105,7 +105,7 @@ func GetCheckStudentList(c *gin.Context) {
 		return
 	}
 
-	teacher, err := teacherService.GetTeacherByUserID(userId.(int))
+	teacher, _, err := teacherService.GetTeacherByUserID(userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

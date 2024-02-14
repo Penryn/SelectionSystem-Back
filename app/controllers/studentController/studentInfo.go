@@ -42,14 +42,14 @@ func CreatePersonalInfo(c *gin.Context) {
 	//判断手机号是否已经被填写过
 	err = studentService.StudentExistByPhone(userId.(int), data.Phone)
 	if err == nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.PhoneExist)
 		return
 	}
 
 	//判断邮箱是否已经被填写过
 	err = studentService.StudentExistByEmail(userId.(int), data.Email)
 	if err == nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.EmailExist)
 		return
 	}
 
@@ -118,7 +118,7 @@ func GetStudentInfo(c *gin.Context) {
 	if studentInfo.TargetID == 0 {
 		targetTeacherName = "无"
 	} else {
-		targetTeacher, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
+		targetTeacher, _, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
 		if err != nil && err != gorm.ErrRecordNotFound {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
@@ -129,7 +129,7 @@ func GetStudentInfo(c *gin.Context) {
 	if studentInfo.TeacherID == 0 {
 		ultimateTeacherName = "无"
 	} else {
-		ultimateTeacher, err := studentService.GetTeacherByTeacherID(studentInfo.TeacherID)
+		ultimateTeacher, _, err := studentService.GetTeacherByTeacherID(studentInfo.TeacherID)
 		if err != nil && err != gorm.ErrRecordNotFound {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
@@ -185,14 +185,14 @@ func UpdateStudentInfo(c *gin.Context) {
 	if studentInfo.Phone != data.Phone {
 		err = studentService.StudentExistByPhone(userId.(int), data.Phone)
 		if err == nil {
-			utils.JsonErrorResponse(c, apiException.ServerError)
+			utils.JsonErrorResponse(c, apiException.PhoneExist)
 			return
 		}
 	}
 	if studentInfo.Email != data.Email {
 		err = studentService.StudentExistByEmail(userId.(int), data.Email)
 		if err == nil {
-			utils.JsonErrorResponse(c, apiException.ServerError)
+			utils.JsonErrorResponse(c, apiException.EmailExist)
 			return
 		}
 	}

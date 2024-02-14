@@ -40,13 +40,13 @@ func DDLSetByTeacher(c *gin.Context) {
 
 	ddlTime, err := time.Parse(time.RFC3339, data.TimeByTeacher)
 	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ParamError)
+		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
 
 	adminDDL, err := teacherService.GetAdminDDL()
 	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ParamError)
+		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
 	if data.Check == 1 {

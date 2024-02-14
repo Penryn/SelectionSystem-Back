@@ -44,11 +44,16 @@ func CheckByTeacher(c *gin.Context) {
 		return
 	}
 
+	_, studentNumber, err := teacherService.GetTeacherByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
 	var count = 0
 	for range data.Checks {
 		count++
-		if count > 6 {
-			utils.JsonErrorResponse(c, apiException.ServerError)
+		if count > 6-studentNumber {
+			utils.JsonErrorResponse(c, apiException.OverNumber)
 			return
 		}
 	}
@@ -135,27 +140,29 @@ func CancelStudent(c *gin.Context) {
 		return
 	}
 
-	studentInfo.TargetStatus = 2
-	studentInfo.TeacherID = 0
 	students, err := teacherService.GetStudentList(studentInfo.TeacherID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
 	updatedStudents := make([]models.Student, 0)
-	for _, student := range students {
-		if student.StudentID != data.StudentID {
-			updatedStudents = append(updatedStudents, student)
+	for i := range students {
+		if students[i].StudentID != data.StudentID {
+			teacherService.AseDecryptStudentInfo(&students[i])
+			updatedStudents = append(updatedStudents, students[i])
 		}
 	}
 	teacher.Students = updatedStudents
 	teacher.StudentsNum = len(updatedStudents)
+	studentInfo.TargetStatus = 2
+	//var teacherID *int = nil
+	//studentInfo.TeacherID = teacherID
 	err = teacherService.UpdateStudentInfoByStudentID(data.StudentID, studentInfo)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	err = teacherService.UpdateTeacher(studentInfo.TeacherID, teacher)
+	err = teacherService.UpdateTeacher(teacher)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
