@@ -13,7 +13,6 @@ func AesEncrypt(orig string) string {
 	// 转成字节数组
 	origData := []byte(orig)
 	key :=config.Config.GetString("aes.key")
-	fmt.Println(key)
 	k := []byte(key)
 
 	// 分组秘钥
@@ -42,8 +41,6 @@ func AesDecrypt(cryted string) string {
 	//不要使用StdEncoding  放在url参数中回导致错误
 	crytedByte, _ := base64.RawURLEncoding.DecodeString(cryted)
 	key :=config.Config.GetString("aes.key")
-	fmt.Println(key)
-	fmt.Println(cryted)
 	k := []byte(key)
 
 	// 分组秘钥

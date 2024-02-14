@@ -33,7 +33,13 @@ func Init(r *gin.Engine) {
 		{
 			admin.POST("/time", adminController.SetDDL)
 			admin.GET("/advice", adminController.GetAdvice)
-			admin.PUT("/reset", adminController.Reset)
+			admin.PUT("/reset", adminController.ResetUser)
+			admin.GET("/user", adminController.GetUserByAdmin)
+			admin.GET("/post", adminController.GetTable)
+			admin.POST("/post", adminController.CheckTable)
+			admin.GET("/check", adminController.GetPost)
+			admin.DELETE("/post", adminController.Disassociate)
+			admin.GET("/teacher", adminController.GetTeacherWithStudents)
 		}
 		student := api.Group("/student").Use(midwares.JWTAuthMiddleware())
 		{
