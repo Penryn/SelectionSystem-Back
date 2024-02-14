@@ -9,70 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type StudentInfoData struct {
-	Name            string `json:"name" binding:"required"`
-	StudentID       string `json:"student_id" binding:"required"`
-	Class           string `json:"class" binding:"required"`
-	Phone           string `json:"phone" binding:"required"`
-	PoliticalStatus string `json:"political_status" binding:"required"`
-	Email           string `json:"email" binding:"required"`
-	Address         string `json:"address" binding:"required"`
-	Plan            string `json:"plan" binding:"required"`
-	Experience      string `json:"experience" binding:"required"`
-	Honor           string `json:"honor" binding:"required"`
-	Interest        string `json:"interest" binding:"required"`
-}
-
-// 填写学生个人信息
-func CreatePersonalInfo(c *gin.Context) {
-	var data StudentInfoData
-	err := c.ShouldBindJSON(&data)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ParamError)
-		return
-	}
-
-	//获取用户身份token
-	userId, er := c.Get("ID")
-	if !er {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	//判断手机号是否已经被填写过
-	err = studentService.StudentExistByPhone(userId.(int), data.Phone)
-	if err == nil {
-		utils.JsonErrorResponse(c, apiException.PhoneExist)
-		return
-	}
-
-	//判断邮箱是否已经被填写过
-	err = studentService.StudentExistByEmail(userId.(int), data.Email)
-	if err == nil {
-		utils.JsonErrorResponse(c, apiException.EmailExist)
-		return
-	}
-
-	err = studentService.CreateStudentInfo(userId.(int), models.Student{
-		Name:            data.Name,
-		Class:           data.Class,
-		Phone:           data.Phone,
-		PoliticalStatus: data.PoliticalStatus,
-		Email:           data.Email,
-		Address:         data.Address,
-		Plan:            data.Plan,
-		Experience:      data.Experience,
-		Honor:           data.Honor,
-		Interest:        data.Interest,
-	})
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	utils.JsonSuccessResponse(c, nil)
-}
-
 type StudentData struct {
 	Name            string `json:"name"`
 	StudentID       string `json:"studentID"`
@@ -157,6 +93,20 @@ func GetStudentInfo(c *gin.Context) {
 	}
 
 	utils.JsonSuccessResponse(c, studentData)
+}
+
+type StudentInfoData struct {
+	Name            string `json:"name" binding:"required"`
+	StudentID       string `json:"student_id" binding:"required"`
+	Class           string `json:"class" binding:"required"`
+	Phone           string `json:"phone" binding:"required"`
+	PoliticalStatus string `json:"political_status" binding:"required"`
+	Email           string `json:"email" binding:"required"`
+	Address         string `json:"address" binding:"required"`
+	Plan            string `json:"plan" binding:"required"`
+	Experience      string `json:"experience" binding:"required"`
+	Honor           string `json:"honor" binding:"required"`
+	Interest        string `json:"interest" binding:"required"`
 }
 
 // 修改个人信息
