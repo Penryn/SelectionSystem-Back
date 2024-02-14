@@ -52,11 +52,11 @@ func  GetUsers(pagenum,pagesize int) ([]models.User,*int64, error) {
 func GetStudents(pagenum int, pagesize int) ([]models.Student, *int64, error) {
 	var students []models.Student
 	var num int64
-	result := database.DB.Model(&models.Student{}).Count(&num)
+	result := database.DB.Model(&models.Student{}).Not("selection_table=?","").Count(&num)
 	if result.Error != nil {
 		return students, nil, result.Error
 	}
-	result = database.DB.Find(&students)
+	result = database.DB.Not("selection_table=?","").Find(&students)
 	return students, &num, result.Error
 }
 
@@ -83,8 +83,12 @@ func CheckTable(studentID string,target_id int,check int) error {
 			return err
 		}
 	}
-	result = database.DB.Model(&student).Update("admin_agree", check)
-	return result.Error
+	result = database.DB.Model(&student).Update("admin_status", check)
+	if result.Error != nil {
+		return result.Error
+	}
+	err := ChangeStudentNum(target_id)
+	return err
 	
 }
 
@@ -93,7 +97,7 @@ func StudentjoinTeacher(studentID string,target_id int) error {
 	database.DB.Take(&student, "student_id = ?", studentID)
 	var teacher models.Teacher
 	database.DB.Take(&teacher, "id = ?", target_id)
-	student, err := userService.GetStudentByID(student.ID)
+	student, err := userService.GetStudentByID(student.UserID)
 	if err != nil {
 		return err
 	}
@@ -102,24 +106,24 @@ func StudentjoinTeacher(studentID string,target_id int) error {
 }
 
 
-func GetCheckStudents(check,pagenum,pagesize int) ([]models.Student, *int64,error) {
+func GetCheckStudents(check, pagenum, pagesize int) ([]models.Student, *int64, error) {
 	var students []models.Student
 	var num int64
 	var result *gorm.DB
-	if check==1{
-		result = database.DB.Model(&models.Student{}).Where("admin_agree = ?", 0).Count(&num)
+	if check == 1 {
+		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 0).Not("selection_table=?","").Count(&num)
 		if result.Error != nil {
-			return students, nil,result.Error
+			return students, nil, result.Error
 		}
-		result = database.DB.Where("admin_agree = ?", 0).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
-	}else if check==2{
-		result = database.DB.Model(&models.Student{}).Where("admin_agree = ?", 1).Or("admin_agree = ?",2).Count(&num)
+		result = database.DB.Where("admin_status = ?", 0).Not("selection_table=?","").Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
+	} else if check == 2 {
+		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 1).Or("admin_status = ?", 2).Not("selection_table=?","").Count(&num)
 		if result.Error != nil {
-			return students, nil,result.Error
+			return students, nil, result.Error
 		}
-		result = database.DB.Where("admin_agree = ?", 1).Or("admin_agree = ?",2).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
+		result = database.DB.Where("admin_status = ?", 1).Or("admin_status = ?", 2).Not("selection_table=?","").Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
 	}
-	return students, &num,result.Error
+	return students, &num, result.Error
 }
 
 func Disassociate(studentID string,target_id int) error {
@@ -127,11 +131,19 @@ func Disassociate(studentID string,target_id int) error {
 	database.DB.Take(&student, "student_id = ?", studentID)
 	var teacher models.Teacher
 	database.DB.Take(&teacher, "id = ?", target_id)
-	student, err := userService.GetStudentByID(student.ID)
+	student, err := userService.GetStudentByID(student.UserID)
 	if err != nil {
 		return err
 	}
-	err=database.DB.Model(&teacher).Association("Students").Delete(&student)
+	err = database.DB.Model(&teacher).Association("Students").Delete(&student)
+	if err != nil {
+		return err
+	}
+	result := database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 0})
+	if result.Error != nil {
+		return result.Error
+	}
+	err = ChangeStudentNum(target_id)
 	return err
 }
 
@@ -144,4 +156,17 @@ func GetTeachers(pagenum,pagesize int)([]models.Teacher,*int64, error){
 	}
 	result=database.DB.Preload("Students").Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&teachers)
 	return teachers,&num,result.Error
+}
+
+
+
+func ChangeStudentNum(teacher_id int) error {
+	var teacher models.Teacher
+	result := database.DB.Preload("Students").Take(&teacher, "id = ?", teacher_id)
+	if result.Error != nil {
+		return result.Error
+	}
+	StudentNum := len(teacher.Students)
+	result = database.DB.Model(&teacher).Updates(map[string]interface{}{"student_num": StudentNum})
+	return result.Error
 }

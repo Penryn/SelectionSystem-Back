@@ -54,9 +54,7 @@ func GetTable(c *gin.Context) {
 	}
 	var result []GetTableRequest
 	for i := 0; i < len(students); i++ {
-		if students[i].SelectionTable != "" {
-			result = append(result, GetTableRequest{StudentID: students[i].StudentID, SelectionTable: students[i].SelectionTable, Name: students[i].Name})
-		}
+		result = append(result, GetTableRequest{StudentID: students[i].StudentID, Name: students[i].Name, SelectionTable: students[i].SelectionTable})
 	}
 	utils.JsonSuccessResponse(c, gin.H{
 		"data": result ,
@@ -65,8 +63,8 @@ func GetTable(c *gin.Context) {
 }
 
 type CheckTableData struct {
-	StudentID string `json:"student_id"`
-	Check     int    `json:"check" validate:"oneof=1 2"` // 1:同意 2:拒绝
+	StudentsID []string `json:"students_id" validate:"required"`
+	Check      int      `json:"check" validate:"oneof=1 2"` // 1:同意 2:拒绝
 }
 
 func CheckTable(c *gin.Context) {
@@ -94,20 +92,32 @@ func CheckTable(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	//查询学生
-	student, err := userService.GetStudentByStudentID(data.StudentID)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+	//批量处理学生
+	if len(data.StudentsID) >6 {
+		utils.JsonErrorResponse(c, apiException.MoreThanSix)
 		return
 	}
-	err = adminService.CheckTable(student.StudentID, student.TargetID, data.Check)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
+	for _, studentID := range data.StudentsID {
+
+		//查询学生
+		student, err := userService.GetStudentByStudentID(studentID)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		if student.AdminStatus != 0 {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		err = adminService.CheckTable(student.StudentID, student.TargetID, data.Check)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
 	}
 	utils.JsonSuccessResponse(c, nil)
-
 }
+
 
 type GetPostData struct {
 	Check int `form:"check" validate:"oneof=1 2"` // 1:待处理 2:已处理
@@ -190,6 +200,10 @@ func Disassociate(c *gin.Context) {
 	//查询学生
 	student, err := userService.GetStudentByStudentID(data.StudentID)
 	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	if student.AdminStatus != 1 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
