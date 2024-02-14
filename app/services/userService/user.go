@@ -16,7 +16,21 @@ import (
 func CreateUser(user models.User) error {
 	AseEncryptPassword(&user)
 	result_a := database.DB.Create(&user)
-	result_b := database.DB.Omit("teacher_id").Create(&models.Student{UserID: user.ID, StudentID: user.Username})
+	var student models.Student
+	student.UserID = user.ID
+	student.StudentID = user.Username
+	student.Name = "未填写"
+	student.Email = "未填写"
+	student.Class = "未填写"
+	student.Phone = "未填写"
+	student.Address = "未填写"
+	student.PoliticalStatus = "未填写"
+	student.Plan = "未填写"
+	student.Experience = "未填写"
+	student.Honor = "未填写"
+	student.Interest = "未填写"
+	AseEncryptStudentInfo(&student)
+	result_b := database.DB.Omit("teacher_id").Create(&student)
 	if result_a.Error != nil {
 		return result_a.Error
 	} else if result_b.Error != nil {

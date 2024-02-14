@@ -5,10 +5,16 @@ import (
 	"SelectionSystem-Back/app/services/adminService"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
+	"math"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+type GetAdviceData struct {
+	PageNum  int `form:"page_num" validate:"required"`
+	PageSize int `form:"page_size" validate:"required"`
+}
 
 type GetAdviceResponse struct {
 	Name        string    `json:"name"`
@@ -17,6 +23,12 @@ type GetAdviceResponse struct {
 }
 
 func GetAdvice(c *gin.Context) {
+	var data GetAdviceData
+	err := c.ShouldBindQuery(&data)
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
 	//获取用户id
 	userID, er := c.Get("ID")
 	if !er {
@@ -36,7 +48,8 @@ func GetAdvice(c *gin.Context) {
 		return
 	}
 	//获取建议
-	advices, err := adminService.GetAdvices()
+	var num *int64
+	advices, num,err := adminService.GetAdvices(data.PageNum, data.PageSize)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -60,5 +73,5 @@ func GetAdvice(c *gin.Context) {
 			CreatedTime: advice.CreateTime,
 		})
 	}
-	utils.JsonSuccessResponse(c, adviceResponse)
+	utils.JsonSuccessResponse(c, gin.H{"data": adviceResponse, "total_page_num": math.Ceil(float64(*num)/float64(data.PageSize))})
 }

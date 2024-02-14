@@ -10,7 +10,7 @@ import (
 )
 
 type SendConversationData struct {
-	UserBID int    `json:"userBID"`
+	UserBID int    `json:"user_b_id"`
 	Message string `json:"message"`
 }
 
@@ -53,8 +53,8 @@ type GetConversationData struct {
 	UserID int `json:"user_id"`
 }
 type GetConversationResponse struct {
-	UserAName string    `json:"userAname"`
-	UserBName string    `json:"userBname"`
+	UserAName string    `json:"user_a_name"`
+	UserBName string    `json:"user_b_name"`
 	Message   string    `json:"message"`
 	Time      time.Time `json:"time"`
 }
