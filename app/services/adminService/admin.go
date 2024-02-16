@@ -13,10 +13,10 @@ import (
 func SetDDL(time time.Time,ddltype,id  int) error {
 	var result *gorm.DB
 	if ddltype==1{
-		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("first_time",time)
+		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("first_ddl",time)
 		return result.Error
 	}else if ddltype==2{
-		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("second_time",time)
+		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("second_ddl",time)
 		return result.Error
 	}
 	return result.Error
@@ -84,11 +84,7 @@ func CheckTable(studentID string,target_id int,check int) error {
 		}
 	}
 	result = database.DB.Model(&student).Update("admin_status", check)
-	if result.Error != nil {
-		return result.Error
-	}
-	err := ChangeStudentNum(target_id)
-	return err
+	return result.Error
 	
 }
 
@@ -140,11 +136,7 @@ func Disassociate(studentID string,target_id int) error {
 		return err
 	}
 	result := database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 0})
-	if result.Error != nil {
-		return result.Error
-	}
-	err = ChangeStudentNum(target_id)
-	return err
+	return result.Error
 }
 
 func GetTeachers(pagenum,pagesize int)([]models.Teacher,*int64, error){
@@ -160,13 +152,13 @@ func GetTeachers(pagenum,pagesize int)([]models.Teacher,*int64, error){
 
 
 
-func ChangeStudentNum(teacher_id int) error {
-	var teacher models.Teacher
-	result := database.DB.Preload("Students").Take(&teacher, "id = ?", teacher_id)
-	if result.Error != nil {
-		return result.Error
-	}
-	StudentNum := len(teacher.Students)
-	result = database.DB.Model(&teacher).Updates(map[string]interface{}{"student_num": StudentNum})
-	return result.Error
-}
+// func ChangeStudentNum(teacher_id int) error {
+// 	var teacher models.Teacher
+// 	result := database.DB.Preload("Students").Take(&teacher, "id = ?", teacher_id)
+// 	if result.Error != nil {
+// 		return result.Error
+// 	}
+// 	StudentNum := len(teacher.Students)
+// 	result = database.DB.Model(&teacher).Updates(map[string]interface{}{"students_num": StudentNum})
+// 	return result.Error
+// }

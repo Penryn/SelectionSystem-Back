@@ -11,7 +11,7 @@ import (
 )
 
 type DDLData struct {
-	TimeByAdmin string `json:"first_time_by_admin"`
+	TimeByAdmin string `json:"time_by_admin"`
 	Type 	  int    `json:"type"`
 }
 
@@ -45,8 +45,26 @@ func SetDDL(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
+	//获取ddl
+	ddl, err := userService.GetAdminDDL()
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	if data.Type == 1 {
+		if firstTime.After(ddl.SecondDDL) {
+			utils.JsonErrorResponse(c, apiException.TimeSetError)
+			return
+		}
+	} else if data.Type == 2 {
+		if firstTime.Before(ddl.FirstDDL) {
+			utils.JsonErrorResponse(c, apiException.TimeSetError)
+			return
+		}
+	}
 	//设置ddl
-	err=adminService.SetDDL(firstTime,data.Type,user.ID)
+	time:=firstTime.Add((-8)*time.Hour)
+	err=adminService.SetDDL(time,data.Type,user.ID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

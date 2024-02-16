@@ -1,6 +1,7 @@
 package main
 
 import (
+	"SelectionSystem-Back/app/controllers/timeController"
 	"SelectionSystem-Back/app/midwares"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/config/database"
@@ -11,7 +12,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
-
 
 func main() {
 	database.Init()
@@ -25,9 +25,10 @@ func main() {
 	userService.CreateAdministrator()
 	userService.ImportTeacherExcel()
 	r.Static("/static","./static")
+	go timeController.Time()
 	router.Init(r)
-	err:=r.Run()
-	if err !=nil{
-		log.Fatal("Server start error:",err)
+	err := r.Run()
+	if err != nil {
+		log.Fatal("Server shutdown error:", err)
 	}
 }
