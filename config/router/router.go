@@ -3,7 +3,7 @@ package router
 import (
 	"SelectionSystem-Back/app/controllers/adminController"
 	"SelectionSystem-Back/app/controllers/studentController"
-	"SelectionSystem-Back/app/controllers/teancherController"
+	"SelectionSystem-Back/app/controllers/teacherController"
 	"SelectionSystem-Back/app/controllers/userController"
 	"SelectionSystem-Back/app/midwares"
 
@@ -49,8 +49,8 @@ func Init(r *gin.Engine) {
 		}
 		teacher := api.Group("/teacher").Use(midwares.JWTAuthMiddleware())
 		{
-			teacher.GET("student", teancherController.GetStudentList)
-			teacher.GET("student-check", teancherController.GetCheckStudentList)
+			teacher.GET("student", teacherController.GetStudentList)
+			teacher.GET("student-check", teacherController.GetCheckStudentList)
 		}
 	}
 }

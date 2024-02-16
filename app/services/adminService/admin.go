@@ -13,10 +13,10 @@ import (
 func SetDDL(time time.Time,ddltype,id  int) error {
 	var result *gorm.DB
 	if ddltype==1{
-		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("first_time",time)
+		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("first_ddl",time)
 		return result.Error
 	}else if ddltype==2{
-		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("second_time",time)
+		result=database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: id,DDLType: 2}).Update("second_ddl",time)
 		return result.Error
 	}
 	return result.Error

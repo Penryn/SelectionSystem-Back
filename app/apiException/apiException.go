@@ -16,6 +16,7 @@ var (
 	UserNotFind 		 = NewError(http.StatusNotFound, 200503, "用户不存在")
 	PictureError 		 = NewError(http.StatusInternalServerError, 200504, "仅允许上传图片文件")
 	MoreThanSix 		 = NewError(http.StatusInternalServerError, 200505, "一次最多处理6个学生")
+	TimeSetError 		 = NewError(http.StatusInternalServerError, 200506, "时间设置错误")
 	NotFound              = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	Unknown               = NewError(http.StatusInternalServerError, 300500, "系统异常，请稍后重试!")
 )

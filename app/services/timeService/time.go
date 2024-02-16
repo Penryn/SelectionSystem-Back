@@ -4,6 +4,7 @@ import (
 	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/config/database"
 	"math/rand"
+	"time"
 )
 
 func QueryStudents() ([]models.Student, error) {
@@ -25,6 +26,11 @@ func QueryTeachers() ([]int, error) {
 	return teachers_id, nil
 }
 
+func QueryTime() (time.Time, error) {
+	var ddl models.DDL
+	result := database.DB.Where("ddl_type = ?",2).First(&ddl)
+	return ddl.FirstDDL, result.Error
+}
 
 
 func RandomTeacher(teachers_id []int) int {

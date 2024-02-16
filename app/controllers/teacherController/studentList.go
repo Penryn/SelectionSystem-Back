@@ -1,4 +1,4 @@
-package teancherController
+package teacherController
 
 import (
 	"SelectionSystem-Back/app/apiException"
