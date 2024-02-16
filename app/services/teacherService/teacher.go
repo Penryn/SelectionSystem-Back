@@ -2,6 +2,7 @@ package teacherService
 
 import (
 	"SelectionSystem-Back/app/models"
+	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
 	"SelectionSystem-Back/config/database"
 	"gorm.io/gorm"
@@ -21,8 +22,11 @@ func StudentList(targetId int) ([]models.Student, error) {
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
 		TargetID: targetId,
 	}).Where("target_status = ? AND admin_status = ?", 0, 0).Find(&studentList)
+	if len(studentList) == 0 {
+		return []models.Student{}, nil
+	}
 	for i := range studentList {
-		AseDecryptStudentInfo(&studentList[i])
+		aseDecryptStudentInfo(&studentList[i])
 	}
 	return studentList, result.Error
 }
@@ -32,8 +36,11 @@ func StudentCheckList(targetId int) ([]models.Student, error) {
 	result := database.DB.Model(models.Student{}).Where(models.Student{
 		TargetID: targetId,
 	}).Where("target_status IN (?)", []int{1, 2}).Find(&studentList)
+	if len(studentList) == 0 {
+		return []models.Student{}, nil
+	}
 	for i := range studentList {
-		AseDecryptStudentInfo(&studentList[i])
+		aseDecryptStudentInfo(&studentList[i])
 	}
 	return studentList, result.Error
 }
@@ -49,7 +56,7 @@ func GetStudentInfoByID(Id int) (*models.Student, error) {
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
-	AseDecryptStudentInfo(&info)
+	aseDecryptStudentInfo(&info)
 	return &info, nil
 }
 
@@ -64,21 +71,7 @@ func GetStudentInfoByStudentID(studentId string) (*models.Student, error) {
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
-	AseDecryptStudentInfo(&info)
-	return &info, nil
-}
-
-func GetTeacherByTeacherID(teacherId int) (*models.Teacher, error) {
-	var info models.Teacher
-	result := database.DB.Where(&models.Teacher{
-		ID: teacherId,
-	}).First(&info)
-	if result.Error == gorm.ErrRecordNotFound {
-		info.ID = teacherId
-		return &info, result.Error
-	} else if result.Error != nil {
-		return nil, result.Error
-	}
+	aseDecryptStudentInfo(&info)
 	return &info, nil
 }
 
@@ -91,14 +84,24 @@ func GetTeacherByUserID(userID int) (*models.Teacher, int, error) {
 	if teacher.Students == nil {
 		return teacher, 0, nil
 	}
-	for i := range teacher.Students {
-		AseDecryptStudentInfo(&teacher.Students[i])
-	}
 	return teacher, len(teacher.Students), nil
 }
 
+func GetStudentsByUserID(userID int) ([]models.Student, int, error) {
+	var teacher *models.Teacher
+	result := database.DB.Preload("Students").Where("user_id = ?", userID).First(&teacher)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	if teacher.Students == nil {
+		return []models.Student{}, 0, nil
+	}
+	students := teacher.Students
+	return students, len(students), nil
+}
+
 func UpdateStudentInfo(Id int, info *models.Student) error {
-	AseEncryptStudentInfo(info)
+	aseEncryptStudentInfo(info)
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
 		ID: Id,
 	}).Updates(&info)
@@ -108,26 +111,9 @@ func UpdateStudentInfo(Id int, info *models.Student) error {
 	return nil
 }
 
-func UpdateStudentInfoByStudentID(studentId string, info *models.Student) error {
-	AseEncryptStudentInfo(info)
-	result := database.DB.Model(models.Student{}).Where(&models.Student{
-		StudentID: studentId,
-	}).Updates(&info)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
-func SetDDL(time time.Time, check, userId int) error {
+func SetDDL(time time.Time, userId int) error {
 	var result *gorm.DB
-	if check == 1 {
-		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("first_ddl", time)
-		return result.Error
-	} else if check == 2 {
-		result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("second_ddl", time)
-		return result.Error
-	}
+	result = database.DB.Model(&models.DDL{}).Where(models.DDL{UserID: userId, DDLType: 1}).Update("first_ddl", time)
 	return result.Error
 }
 
@@ -145,18 +131,39 @@ func UpdateTeacher(teacher *models.Teacher) error {
 	return nil
 }
 
-func GetStudentList(teacherId int) ([]models.Student, error) {
-	var studentList []models.Student
-	result := database.DB.Model(models.Student{}).Where(models.Student{
-		TeacherID: teacherId,
-	}).Find(&studentList)
-	for i := range studentList {
-		AseDecryptStudentInfo(&studentList[i])
+func Disassociate(studentID string, targetId int) error {
+	var student models.Student
+	database.DB.Take(&student, "student_id = ?", studentID)
+	var teacher models.Teacher
+	database.DB.Take(&teacher, "id = ?", targetId)
+	student, err := userService.GetStudentByID(student.UserID)
+	if err != nil {
+		return err
 	}
-	return studentList, result.Error
+	err = database.DB.Model(&teacher).Association("Students").Delete(&student)
+	if err != nil {
+		return err
+	}
+	result := database.DB.Model(&student).Updates(map[string]interface{}{"target_status": 2})
+	if result.Error != nil {
+		return result.Error
+	}
+	err = changeStudentNum(targetId)
+	return err
 }
 
-func AseEncryptStudentInfo(student *models.Student) {
+func changeStudentNum(teacherId int) error {
+	var teacher models.Teacher
+	result := database.DB.Preload("Students").Take(&teacher, "id = ?", teacherId)
+	if result.Error != nil {
+		return result.Error
+	}
+	StudentNum := len(teacher.Students)
+	result = database.DB.Model(&teacher).Updates(map[string]interface{}{"student_num": StudentNum})
+	return result.Error
+}
+
+func aseEncryptStudentInfo(student *models.Student) {
 	student.Email = utils.AesEncrypt(student.Email)
 	student.Phone = utils.AesEncrypt(student.Phone)
 	student.Address = utils.AesEncrypt(student.Address)
@@ -166,7 +173,7 @@ func AseEncryptStudentInfo(student *models.Student) {
 	student.Interest = utils.AesEncrypt(student.Interest)
 }
 
-func AseDecryptStudentInfo(student *models.Student) {
+func aseDecryptStudentInfo(student *models.Student) {
 	student.Email = utils.AesDecrypt(student.Email)
 	student.Phone = utils.AesDecrypt(student.Phone)
 	student.Address = utils.AesDecrypt(student.Address)

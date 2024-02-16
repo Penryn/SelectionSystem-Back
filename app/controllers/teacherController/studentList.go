@@ -1,4 +1,4 @@
-package teancherController
+package teacherController
 
 import (
 	"SelectionSystem-Back/app/apiException"
@@ -145,4 +145,35 @@ func GetCheckStudentList(c *gin.Context) {
 	}
 
 	utils.JsonSuccessResponse(c, responseStudentList)
+}
+
+// 获取最终学生
+func GetUltimateStudentList(c *gin.Context) {
+	userId, er := c.Get("ID")
+	if !er {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	user, err := teacherService.GetUserByID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	if user.Type != 2 && user.Type != 3 {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	students, num, err := teacherService.GetStudentsByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	utils.JsonSuccessResponse(c, gin.H{
+		"student_num": num,
+		"data":        students,
+	})
 }

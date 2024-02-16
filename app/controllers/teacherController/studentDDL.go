@@ -1,4 +1,4 @@
-package teancherController
+package teacherController
 
 import (
 	"SelectionSystem-Back/app/apiException"
@@ -10,7 +10,6 @@ import (
 
 type DDLSetData struct {
 	TimeByTeacher string `json:"time_by_teacher" binding:"required"`
-	Check         int    `json:"check" binding:"required"`
 }
 
 func DDLSetByTeacher(c *gin.Context) {
@@ -49,23 +48,14 @@ func DDLSetByTeacher(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	if data.Check == 1 {
-		if ddlTime.After(adminDDL.FirstDDL) {
-			ddlTime = adminDDL.FirstDDL
-		}
-	} else if data.Check == 2 {
-		if ddlTime.After(adminDDL.SecondDDL) {
-			ddlTime = adminDDL.SecondDDL
-		}
-		if ddlTime.Before(adminDDL.FirstDDL) {
-			ddlTime = adminDDL.SecondDDL
-		}
+	if ddlTime.After(adminDDL.FirstDDL) {
+		ddlTime = adminDDL.FirstDDL
 	} else {
 		utils.JsonErrorResponse(c, apiException.ParamError)
 		return
 	}
 
-	err = teacherService.SetDDL(ddlTime, data.Check, userId.(int))
+	err = teacherService.SetDDL(ddlTime, userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

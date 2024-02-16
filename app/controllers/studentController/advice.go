@@ -28,6 +28,17 @@ func AdvicePost(c *gin.Context) {
 		return
 	}
 
+	student, err := studentService.GetStudentInfoByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	if student.Name == "未填写" {
+		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
+		return
+	}
+
 	if data.Anonymity == nil {
 		anonymity := false
 		data.Anonymity = &anonymity

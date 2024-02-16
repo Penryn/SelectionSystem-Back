@@ -25,17 +25,6 @@ func StudentExistByEmail(userId int, email string) error {
 	return result.Error
 }
 
-func CreateStudentInfo(userId int, info models.Student) error {
-	aseEncryptStudentInfo(&info)
-	result := database.DB.Model(models.Student{}).Where(models.Student{
-		UserID: userId,
-	}).Updates(&info)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
 func GetStudentInfoByUserID(userId int) (*models.Student, error) {
 	var info models.Student
 	result := database.DB.Where(&models.Student{
@@ -76,6 +65,14 @@ func UpdateTargetTeacher(userId, targetId int, info *models.Student) error {
 	return nil
 }
 
+func UpdateTeacher(teacher *models.Teacher) error {
+	result := database.DB.Model(models.Teacher{}).Updates(&teacher)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func GetTeacherList(pageNum, pageSize int) ([]models.Teacher, error) {
 	var teacherList []models.Teacher
 	result := database.DB.Model(models.Teacher{}).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&teacherList)
@@ -99,9 +96,6 @@ func GetTeacherByTeacherID(teacherID int) (*models.Teacher, int, error) {
 	}
 	if teacher.Students == nil {
 		return teacher, 0, nil
-	}
-	for i := range teacher.Students {
-		aseDecryptStudentInfo(&teacher.Students[i])
 	}
 	return teacher, len(teacher.Students), nil
 }

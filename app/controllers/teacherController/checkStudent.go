@@ -1,8 +1,7 @@
-package teancherController
+package teacherController
 
 import (
 	"SelectionSystem-Back/app/apiException"
-	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/app/services/teacherService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
@@ -44,7 +43,7 @@ func CheckByTeacher(c *gin.Context) {
 		return
 	}
 
-	_, studentNumber, err := teacherService.GetTeacherByUserID(userId.(int))
+	teacher, studentNumber, err := teacherService.GetTeacherByUserID(userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -69,6 +68,12 @@ func CheckByTeacher(c *gin.Context) {
 			studentInfo.TargetStatus = 1
 		} else if check.CheckFirstPost == 2 {
 			studentInfo.TargetStatus = 2
+			teacher.StudentsNum = teacher.StudentsNum - 1
+			err = teacherService.UpdateTeacher(teacher)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
 		} else {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
@@ -119,7 +124,7 @@ func CancelStudent(c *gin.Context) {
 	}
 	currentTime := time.Now()
 	if currentTime.After(adminDDL.FirstDDL) {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.DDLWrong)
 		return
 	}
 
@@ -130,39 +135,11 @@ func CancelStudent(c *gin.Context) {
 	}
 
 	if studentInfo.TargetStatus != 1 || studentInfo.AdminStatus != 1 {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.StatusWrong)
 		return
 	}
 
-	teacher, err := teacherService.GetTeacherByTeacherID(studentInfo.TeacherID)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	students, err := teacherService.GetStudentList(studentInfo.TeacherID)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-	updatedStudents := make([]models.Student, 0)
-	for i := range students {
-		if students[i].StudentID != data.StudentID {
-			teacherService.AseDecryptStudentInfo(&students[i])
-			updatedStudents = append(updatedStudents, students[i])
-		}
-	}
-	teacher.Students = updatedStudents
-	teacher.StudentsNum = len(updatedStudents)
-	studentInfo.TargetStatus = 2
-	//var teacherID *int = nil
-	//studentInfo.TeacherID = teacherID
-	err = teacherService.UpdateStudentInfoByStudentID(data.StudentID, studentInfo)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-	err = teacherService.UpdateTeacher(teacher)
+	err = teacherService.Disassociate(data.StudentID, studentInfo.TeacherID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

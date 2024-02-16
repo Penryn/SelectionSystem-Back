@@ -3,6 +3,7 @@ package studentController
 import (
 	"SelectionSystem-Back/app/apiException"
 	"SelectionSystem-Back/app/services/studentService"
+	"SelectionSystem-Back/app/services/teacherService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
 	"os"
@@ -29,6 +30,17 @@ func PostTeacher(c *gin.Context) {
 		return
 	}
 
+	studentInfo, err := studentService.GetStudentInfoByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	if studentInfo.Name == "未填写" {
+		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
+		return
+	}
+
 	targetTeacher, studentNumber, err := studentService.GetTeacherByTeacherID(data.TargetID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -51,13 +63,14 @@ func PostTeacher(c *gin.Context) {
 		return
 	}
 
-	studentInfo, err := studentService.GetStudentInfoByUserID(userId.(int))
+	err = studentService.UpdateTargetTeacher(userId.(int), data.TargetID, studentInfo)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
 
-	err = studentService.UpdateTargetTeacher(userId.(int), data.TargetID, studentInfo)
+	targetTeacher.StudentsNum = targetTeacher.StudentsNum + 1
+	err = studentService.UpdateTeacher(targetTeacher)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -81,6 +94,27 @@ func UploadSelectionTable(c *gin.Context) {
 	student, err := studentService.GetStudentInfoByUserID(userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	//查看个人信息有无填写
+	if student.Name == "未填写" {
+		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
+		return
+	}
+	//查看是否在规定的期限内
+	adminDDL, err := teacherService.GetAdminDDL()
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	currentTime := time.Now()
+	if currentTime.After(adminDDL.SecondDDL) {
+		utils.JsonErrorResponse(c, apiException.DDLWrong)
+		return
+	}
+	//查询教师是否同意
+	if student.TargetStatus != 1 {
+		utils.JsonErrorResponse(c, apiException.StatusWrong)
 		return
 	}
 	// 保存文件

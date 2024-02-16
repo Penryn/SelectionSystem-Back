@@ -23,6 +23,23 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
+	userId, er := c.Get("ID")
+	if !er {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	student, err := studentService.GetStudentInfoByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	if student.Name == "未填写" {
+		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
+		return
+	}
+
 	teacherList, err := studentService.GetTeacherList(data.PageNum, data.PageSize)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -38,6 +55,7 @@ func GetTeacherList(c *gin.Context) {
 
 	var responseTeacherList []models.Teacher
 	for _, teacher := range teacherList {
+		_, studentsNum, err := studentService.GetTeacherByTeacherID(teacher.ID)
 		if err != nil {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
@@ -50,7 +68,7 @@ func GetTeacherList(c *gin.Context) {
 			Office:      teacher.Office,
 			Phone:       teacher.Phone,
 			Email:       teacher.Email,
-			StudentsNum: teacher.StudentsNum,
+			StudentsNum: studentsNum,
 		}
 		responseTeacherList = append(responseTeacherList, response)
 	}
