@@ -97,6 +97,9 @@ func GetStudentsByUserID(userID int) ([]models.Student, int, error) {
 		return []models.Student{}, 0, nil
 	}
 	students := teacher.Students
+	for i := range teacher.Students {
+		aseDecryptStudentInfo(&teacher.Students[i])
+	}
 	return students, len(students), nil
 }
 
