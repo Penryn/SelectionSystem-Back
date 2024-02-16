@@ -65,7 +65,7 @@ func AdviceGet(c *gin.Context) {
 		return
 	}
 
-	var advice []models.Advice
+	var advice = make([]models.Advice, 0)
 	advice, err := studentService.GetAdvice(userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)

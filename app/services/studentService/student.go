@@ -65,8 +65,8 @@ func UpdateTargetTeacher(userId, targetId int, info *models.Student) error {
 	return nil
 }
 
-func UpdateTeacher(teacher *models.Teacher) error {
-	result := database.DB.Model(models.Teacher{}).Updates(&teacher)
+func UpdateTeacher(targetId int, studentsNum int) error {
+	result := database.DB.Model(&models.Teacher{}).Where("id = ?", targetId).UpdateColumn("students_num", studentsNum)
 	if result.Error != nil {
 		return result.Error
 	}

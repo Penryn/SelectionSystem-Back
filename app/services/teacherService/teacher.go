@@ -123,8 +123,8 @@ func GetAdminDDL() (models.DDL, error) {
 	return ddl, result.Error
 }
 
-func UpdateTeacher(teacher *models.Teacher) error {
-	result := database.DB.Model(models.Teacher{}).Updates(&teacher)
+func UpdateTeacher(id int, studentsNum int) error {
+	result := database.DB.Model(&models.Teacher{}).Where("id = ?", id).UpdateColumn("students_num", studentsNum)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -148,19 +148,7 @@ func Disassociate(studentID string, targetId int) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	err = changeStudentNum(targetId)
 	return err
-}
-
-func changeStudentNum(teacherId int) error {
-	var teacher models.Teacher
-	result := database.DB.Preload("Students").Take(&teacher, "id = ?", teacherId)
-	if result.Error != nil {
-		return result.Error
-	}
-	StudentNum := len(teacher.Students)
-	result = database.DB.Model(&teacher).Updates(map[string]interface{}{"student_num": StudentNum})
-	return result.Error
 }
 
 func aseEncryptStudentInfo(student *models.Student) {

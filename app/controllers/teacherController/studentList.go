@@ -55,7 +55,7 @@ func GetStudentList(c *gin.Context) {
 		return
 	}
 
-	var responseStudentList []Student
+	var responseStudentList = make([]Student, 0)
 	for _, student := range studentList {
 		studentInfo, err := teacherService.GetUserByID(student.UserID)
 		if err != nil {
@@ -116,7 +116,7 @@ func GetCheckStudentList(c *gin.Context) {
 		return
 	}
 
-	var responseStudentList []Student
+	var responseStudentList = make([]Student, 0)
 	for _, student := range studentList {
 		studentInfo, err := teacherService.GetUserByID(student.UserID)
 		if err != nil {

@@ -42,6 +42,7 @@ func DDLSetByTeacher(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
+	ddlTime = ddlTime.Add(-8 * time.Hour)
 
 	adminDDL, err := teacherService.GetAdminDDL()
 	if err != nil {
@@ -50,9 +51,6 @@ func DDLSetByTeacher(c *gin.Context) {
 	}
 	if ddlTime.After(adminDDL.FirstDDL) {
 		ddlTime = adminDDL.FirstDDL
-	} else {
-		utils.JsonErrorResponse(c, apiException.ParamError)
-		return
 	}
 
 	err = teacherService.SetDDL(ddlTime, userId.(int))

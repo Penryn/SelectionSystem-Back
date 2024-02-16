@@ -63,6 +63,20 @@ func PostTeacher(c *gin.Context) {
 		return
 	}
 
+	if studentInfo.TargetID != 0 && studentInfo.TargetStatus == 0 {
+		originTargetTeacher, _, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		originTargetTeacher.StudentsNum = originTargetTeacher.StudentsNum - 1
+		err = studentService.UpdateTeacher(studentInfo.TargetID, originTargetTeacher.StudentsNum)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+	}
+
 	err = studentService.UpdateTargetTeacher(userId.(int), data.TargetID, studentInfo)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -70,7 +84,7 @@ func PostTeacher(c *gin.Context) {
 	}
 
 	targetTeacher.StudentsNum = targetTeacher.StudentsNum + 1
-	err = studentService.UpdateTeacher(targetTeacher)
+	err = studentService.UpdateTeacher(data.TargetID, targetTeacher.StudentsNum)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
