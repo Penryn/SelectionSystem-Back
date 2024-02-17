@@ -2,7 +2,6 @@ package studentController
 
 import (
 	"SelectionSystem-Back/app/apiException"
-	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/app/services/studentService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
@@ -12,6 +11,17 @@ import (
 type PageData struct {
 	PageNum  int `form:"page_num" binding:"required"`
 	PageSize int `form:"page_size" binding:"required"`
+}
+
+type Teacher struct {
+	ID          int    `json:"teacher_id" binding:"required"`
+	Name        string `json:"teacherName" binding:"required"`
+	Section     string `json:"section" binding:"required"`
+	Office      string `json:"office" binding:"required"`
+	Phone       string `json:"phone" binding:"required"`
+	Email       string `json:"email" binding:"required"`
+	StudentsNum int    `json:"students_num" binding:"required"`
+	TeacherDDL  string `json:"teacher_ddl" binding:"required"`
 }
 
 // 获取教师列表
@@ -53,22 +63,28 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
-	var responseTeacherList []models.Teacher
+	var responseTeacherList []Teacher
 	for _, teacher := range teacherList {
 		_, studentsNum, err := studentService.GetTeacherByTeacherID(teacher.ID)
 		if err != nil {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
-		response := models.Teacher{
+		teacherDDL, err := studentService.GetTeacherDDLByUserID(teacher.UserID)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		formattedTime := teacherDDL.FirstDDL.Format("2006-01-02T15:04:05Z")
+		response := Teacher{
 			ID:          teacher.ID,
-			UserID:      teacher.UserID,
-			TeacherName: teacher.TeacherName,
+			Name:        teacher.TeacherName,
 			Section:     teacher.Section,
 			Office:      teacher.Office,
 			Phone:       teacher.Phone,
 			Email:       teacher.Email,
 			StudentsNum: studentsNum,
+			TeacherDDL:  formattedTime,
 		}
 		responseTeacherList = append(responseTeacherList, response)
 	}

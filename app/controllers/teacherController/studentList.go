@@ -147,6 +147,11 @@ func GetCheckStudentList(c *gin.Context) {
 	utils.JsonSuccessResponse(c, responseStudentList)
 }
 
+type UltimateStudent struct {
+	Name      string `json:"name" binding:"required"`
+	StudentID string `json:"student_id" binding:"required"`
+}
+
 // 获取最终学生
 func GetUltimateStudentList(c *gin.Context) {
 	userId, er := c.Get("ID")
@@ -172,8 +177,16 @@ func GetUltimateStudentList(c *gin.Context) {
 		return
 	}
 
+	var responseStudentList = make([]UltimateStudent, 0)
+	for _, student := range students {
+		response := UltimateStudent{
+			Name:      student.Name,
+			StudentID: student.StudentID,
+		}
+		responseStudentList = append(responseStudentList, response)
+	}
 	utils.JsonSuccessResponse(c, gin.H{
 		"student_num": num,
-		"data":        students,
+		"data":        responseStudentList,
 	})
 }
