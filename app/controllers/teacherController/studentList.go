@@ -8,6 +8,7 @@ import (
 )
 
 type Student struct {
+	ID              int    `json:"id" binding:"required"`
 	Name            string `json:"name" binding:"required"`
 	StudentID       string `json:"student_id" binding:"required"`
 	Class           string `json:"class" binding:"required"`
@@ -26,7 +27,7 @@ type Student struct {
 
 // 获取未审批的学生列表
 func GetStudentList(c *gin.Context) {
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -43,13 +44,18 @@ func GetStudentList(c *gin.Context) {
 		return
 	}
 
-	studentList, err := teacherService.StudentList()
+	teacher, _, err := teacherService.GetTeacherByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	studentList, err := teacherService.StudentList(teacher.ID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
 
-	var responseStudentList []Student
+	var responseStudentList = make([]Student, 0)
 	for _, student := range studentList {
 		studentInfo, err := teacherService.GetUserByID(student.UserID)
 		if err != nil {
@@ -58,6 +64,7 @@ func GetStudentList(c *gin.Context) {
 		}
 
 		response := Student{
+			ID:              student.ID,
 			StudentID:       student.StudentID,
 			Name:            student.Name,
 			Class:           student.Class,
@@ -81,7 +88,7 @@ func GetStudentList(c *gin.Context) {
 
 // 获取已审批的学生列表
 func GetCheckStudentList(c *gin.Context) {
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -98,13 +105,18 @@ func GetCheckStudentList(c *gin.Context) {
 		return
 	}
 
-	studentList, err := teacherService.StudentCheckList()
+	teacher, _, err := teacherService.GetTeacherByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	studentList, err := teacherService.StudentCheckList(teacher.ID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
 
-	var responseStudentList []Student
+	var responseStudentList = make([]Student, 0)
 	for _, student := range studentList {
 		studentInfo, err := teacherService.GetUserByID(student.UserID)
 		if err != nil {
@@ -113,6 +125,7 @@ func GetCheckStudentList(c *gin.Context) {
 		}
 
 		response := Student{
+			ID:              student.ID,
 			StudentID:       student.StudentID,
 			Name:            student.Name,
 			Class:           student.Class,
@@ -132,4 +145,48 @@ func GetCheckStudentList(c *gin.Context) {
 	}
 
 	utils.JsonSuccessResponse(c, responseStudentList)
+}
+
+type UltimateStudent struct {
+	Name      string `json:"name" binding:"required"`
+	StudentID string `json:"student_id" binding:"required"`
+}
+
+// 获取最终学生
+func GetUltimateStudentList(c *gin.Context) {
+	userId, er := c.Get("ID")
+	if !er {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	user, err := teacherService.GetUserByID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	if user.Type != 2 && user.Type != 3 {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	students, num, err := teacherService.GetStudentsByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	var responseStudentList = make([]UltimateStudent, 0)
+	for _, student := range students {
+		response := UltimateStudent{
+			Name:      student.Name,
+			StudentID: student.StudentID,
+		}
+		responseStudentList = append(responseStudentList, response)
+	}
+	utils.JsonSuccessResponse(c, gin.H{
+		"student_num": num,
+		"data":        responseStudentList,
+	})
 }

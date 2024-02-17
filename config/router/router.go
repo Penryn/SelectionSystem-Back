@@ -46,11 +46,20 @@ func Init(r *gin.Engine) {
 			student.GET("/info", studentController.GetStudentInfo)
 			student.PUT("/info", studentController.UpdateStudentInfo)
 			student.GET("/teacher", studentController.GetTeacherList)
+			student.POST("choose-teacher", studentController.PostTeacher)
+			student.POST("suggest", studentController.AdvicePost)
+			student.GET("get-suggest", studentController.AdviceGet)
+			student.POST("post", studentController.UploadSelectionTable)
 		}
 		teacher := api.Group("/teacher").Use(midwares.JWTAuthMiddleware())
 		{
 			teacher.GET("student", teacherController.GetStudentList)
 			teacher.GET("student-check", teacherController.GetCheckStudentList)
+			teacher.POST("/student/post", teacherController.CheckByTeacher)
+			teacher.POST("time", teacherController.DDLSetByTeacher)
+			teacher.PUT("student", teacherController.CancelStudent)
+			teacher.GET("get-student", teacherController.GetUltimateStudentList)
+			teacher.PUT("/student/post", teacherController.WithdrawApproval)
 		}
 	}
 }

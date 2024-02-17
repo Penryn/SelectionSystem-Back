@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
 type StudentData struct {
 	Name            string `json:"name"`
 	StudentID       string `json:"studentID"`
@@ -32,7 +31,7 @@ type StudentData struct {
 // 获取学生个人信息
 func GetStudentInfo(c *gin.Context) {
 	//获取用户身份token
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -51,17 +50,22 @@ func GetStudentInfo(c *gin.Context) {
 		return
 	}
 
-	targetTeacher, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
+	var targetTeacherName string
+	if studentInfo.TargetID == 0 {
+		targetTeacherName = "无"
+	} else {
+		targetTeacher, _, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		targetTeacherName = targetTeacher.TeacherName
 	}
-
 	var ultimateTeacherName string
 	if studentInfo.TeacherID == 0 {
 		ultimateTeacherName = "无"
 	} else {
-		ultimateTeacher, err := studentService.GetTeacherByTeacherID(studentInfo.TeacherID)
+		ultimateTeacher, _, err := studentService.GetTeacherByTeacherID(studentInfo.TeacherID)
 		if err != nil && err != gorm.ErrRecordNotFound {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
@@ -83,14 +87,13 @@ func GetStudentInfo(c *gin.Context) {
 		Interest:        studentInfo.Interest,
 		Avatar:          user.Avartar,
 		TeacherName:     ultimateTeacherName,
-		TargetName:      targetTeacher.TeacherName,
+		TargetName:      targetTeacherName,
 		TargetAgree:     studentInfo.TargetStatus,
 		AdminAgree:      studentInfo.AdminStatus,
 	}
 
 	utils.JsonSuccessResponse(c, studentData)
 }
-
 
 type StudentInfoData struct {
 	Name            string `json:"name" binding:"required"`
@@ -116,7 +119,7 @@ func UpdateStudentInfo(c *gin.Context) {
 	}
 
 	//获取用户身份token
-	userId, er := c.Get("UserID")
+	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -132,14 +135,14 @@ func UpdateStudentInfo(c *gin.Context) {
 	if studentInfo.Phone != data.Phone {
 		err = studentService.StudentExistByPhone(userId.(int), data.Phone)
 		if err == nil {
-			utils.JsonErrorResponse(c, apiException.ServerError)
+			utils.JsonErrorResponse(c, apiException.PhoneExist)
 			return
 		}
 	}
 	if studentInfo.Email != data.Email {
 		err = studentService.StudentExistByEmail(userId.(int), data.Email)
 		if err == nil {
-			utils.JsonErrorResponse(c, apiException.ServerError)
+			utils.JsonErrorResponse(c, apiException.EmailExist)
 			return
 		}
 	}
