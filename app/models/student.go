@@ -15,9 +15,9 @@ type Student struct {
 	Honor           string  `json:"honor"`            //获得荣誉
 	Interest        string  `json:"interest"`         //个人专业研究兴趣方向
 	TargetID        int     `json:"target_id"`        //目标导师id
-	TargetStatus    int     `json:"target_agree"`     //目标导师状态 		0：待处理 1：同意 2：拒绝
+	TargetStatus    int     `json:"target_agree"`     //目标导师状态 		0：初始  1：待处理 2：同意 3：拒绝
 	SelectionTable  string  `json:"selection_table"`  //双向选择表url
-	AdminStatus     int     `json:"admin_agree"`      //管理员状态			0：待处理 1：同意 2：拒绝
+	AdminStatus     int     `json:"admin_agree"`      //管理员状态			0：初始  1：待处理 2：同意 3：拒绝
 	Teacher         Teacher `json:"teacher"`          //导师
 	TeacherID       int     `json:"teacher_id"`       //导师id
 }

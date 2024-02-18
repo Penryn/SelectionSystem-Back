@@ -82,8 +82,10 @@ func CheckTable(studentID string,target_id int,check int) error {
 		if err != nil {
 			return err
 		}
+		result = database.DB.Model(&student).Update("admin_status", 2)
+	}else if check == 2 {
+		result = database.DB.Model(&student).Update("admin_status", 3)
 	}
-	result = database.DB.Model(&student).Update("admin_status", check)
 	return result.Error
 	
 }
@@ -107,17 +109,17 @@ func GetCheckStudents(check, pagenum, pagesize int) ([]models.Student, *int64, e
 	var num int64
 	var result *gorm.DB
 	if check == 1 {
-		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 0).Not("selection_table=?","").Count(&num)
+		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 1).Count(&num)
 		if result.Error != nil {
 			return students, nil, result.Error
 		}
-		result = database.DB.Where("admin_status = ?", 0).Not("selection_table=?","").Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
+		result = database.DB.Where("admin_status = ?", 1).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
 	} else if check == 2 {
-		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 1).Or("admin_status = ?", 2).Not("selection_table=?","").Count(&num)
+		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 2).Or("admin_status = ?", 3).Count(&num)
 		if result.Error != nil {
 			return students, nil, result.Error
 		}
-		result = database.DB.Where("admin_status = ?", 1).Or("admin_status = ?", 2).Not("selection_table=?","").Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
+		result = database.DB.Where("admin_status = ?", 2).Or("admin_status = ?", 3).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
 	}
 	return students, &num, result.Error
 }
@@ -135,7 +137,7 @@ func Disassociate(studentID string,target_id int) error {
 	if err != nil {
 		return err
 	}
-	result := database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 0})
+	result := database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 1})
 	return result.Error
 }
 
