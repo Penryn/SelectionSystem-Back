@@ -17,18 +17,34 @@ func GetUserByID(id int) (*models.User, error) {
 	return &user, result.Error
 }
 
-func StudentList(targetId int) ([]models.Student, error) {
+func StudentList(targetId int, checkStudentList int) ([]models.Student, error) {
 	var studentList []models.Student
-	result := database.DB.Model(models.Student{}).Where(&models.Student{
-		TargetID: targetId,
-	}).Find(&studentList)
-	if len(studentList) == 0 {
+	if checkStudentList == 1 {
+		result := database.DB.Model(models.Student{}).Where(&models.Student{
+			TargetID:     targetId,
+			TargetStatus: 1,
+		}).Find(&studentList)
+		if len(studentList) == 0 {
+			return []models.Student{}, nil
+		}
+		for i := range studentList {
+			aseDecryptStudentInfo(&studentList[i])
+		}
+		return studentList, result.Error
+	} else if checkStudentList == 2 {
+		result := database.DB.Model(models.Student{}).
+			Where("target_id = ? AND target_status IN (?)", targetId, []int{2, 3}).
+			Find(&studentList)
+		if len(studentList) == 0 {
+			return []models.Student{}, nil
+		}
+		for i := range studentList {
+			aseDecryptStudentInfo(&studentList[i])
+		}
+		return studentList, result.Error
+	} else {
 		return []models.Student{}, nil
 	}
-	for i := range studentList {
-		aseDecryptStudentInfo(&studentList[i])
-	}
-	return studentList, result.Error
 }
 
 func GetStudentInfoByStudentID(studentId string) (*models.Student, error) {

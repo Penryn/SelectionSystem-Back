@@ -5,11 +5,10 @@ import (
 	"SelectionSystem-Back/app/services/teacherService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"strconv"
 )
 
 type Student struct {
-	ID              int    `json:"id" binding:"required"`
 	Name            string `json:"name" binding:"required"`
 	StudentID       string `json:"student_id" binding:"required"`
 	Class           string `json:"class" binding:"required"`
@@ -28,6 +27,8 @@ type Student struct {
 
 // 获取学生列表
 func GetStudentList(c *gin.Context) {
+	check := c.Query("check")
+	checkStudentList, err := strconv.Atoi(check)
 	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -50,7 +51,7 @@ func GetStudentList(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	studentList, err := teacherService.StudentList(teacher.ID)
+	studentList, err := teacherService.StudentList(teacher.ID, checkStudentList)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -65,7 +66,6 @@ func GetStudentList(c *gin.Context) {
 		}
 
 		response := Student{
-			ID:              student.ID,
 			StudentID:       student.StudentID,
 			Name:            student.Name,
 			Class:           student.Class,
@@ -144,15 +144,6 @@ type StudentData struct {
 	Honor           string `json:"honor"`
 	Interest        string `json:"interest"`
 	Avatar          string `json:"avartar"`
-	TeacherName     string `json:"teacher_name"`
-	TargetName      string `json:"target_name"`
-	TargetAgree     int    `json:"target_agree"`
-	AdminAgree      int    `json:"admin_agree"`
-	SelectionTable  string `json:"selection_table"`
-}
-
-type StudentIDData struct {
-	StudentID string `form:"student_id" binding:"required"`
 }
 
 // 获取学生信息
@@ -187,29 +178,6 @@ func GetStudentInfo(c *gin.Context) {
 		return
 	}
 
-	var targetTeacherName string
-	if student.TargetID == 0 {
-		targetTeacherName = "无"
-	} else {
-		targetTeacher, _, err := teacherService.GetTeacherByID(student.TargetID)
-		if err != nil && err != gorm.ErrRecordNotFound {
-			utils.JsonErrorResponse(c, apiException.ServerError)
-			return
-		}
-		targetTeacherName = targetTeacher.TeacherName
-	}
-	var ultimateTeacherName string
-	if student.TeacherID == 0 {
-		ultimateTeacherName = "无"
-	} else {
-		ultimateTeacher, _, err := teacherService.GetTeacherByID(student.TeacherID)
-		if err != nil && err != gorm.ErrRecordNotFound {
-			utils.JsonErrorResponse(c, apiException.ServerError)
-			return
-		}
-		ultimateTeacherName = ultimateTeacher.TeacherName
-	}
-
 	response := StudentData{
 		StudentID:       student.StudentID,
 		Name:            student.Name,
@@ -223,11 +191,6 @@ func GetStudentInfo(c *gin.Context) {
 		Honor:           student.Honor,
 		Interest:        student.Interest,
 		Avatar:          studentInfo.Avartar,
-		TeacherName:     ultimateTeacherName,
-		TargetName:      targetTeacherName,
-		TargetAgree:     student.TargetStatus,
-		AdminAgree:      student.AdminStatus,
-		SelectionTable:  student.SelectionTable,
 	}
 
 	utils.JsonSuccessResponse(c, response)
