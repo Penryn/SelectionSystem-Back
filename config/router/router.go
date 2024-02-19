@@ -54,12 +54,12 @@ func Init(r *gin.Engine) {
 		teacher := api.Group("/teacher").Use(midwares.JWTAuthMiddleware())
 		{
 			teacher.GET("student", teacherController.GetStudentList)
-			teacher.GET("student-check", teacherController.GetCheckStudentList)
 			teacher.POST("/student/post", teacherController.CheckByTeacher)
 			teacher.POST("time", teacherController.DDLSetByTeacher)
 			teacher.PUT("student", teacherController.CancelStudent)
 			teacher.GET("get-student", teacherController.GetUltimateStudentList)
 			teacher.PUT("/student/post", teacherController.WithdrawApproval)
+			teacher.GET("/studentInfo", teacherController.GetStudentInfo)
 		}
 	}
 }

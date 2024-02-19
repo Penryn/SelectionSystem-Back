@@ -58,6 +58,12 @@ func AdvicePost(c *gin.Context) {
 	utils.JsonSuccessResponse(c, nil)
 }
 
+type Advice struct {
+	Content    string `json:"content" binding:"required"`
+	Anonymity  bool   `json:"anonymity" binding:"required"`
+	CreateTime string `json:"create_time" binding:"required"`
+}
+
 func AdviceGet(c *gin.Context) {
 	userId, er := c.Get("ID")
 	if !er {
@@ -65,12 +71,21 @@ func AdviceGet(c *gin.Context) {
 		return
 	}
 
-	var advice = make([]models.Advice, 0)
 	advice, err := studentService.GetAdvice(userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
+	var responseAdvice = make([]Advice, 0)
+	for _, adviceInfo := range advice {
+		formattedTime := adviceInfo.CreateTime.Format("2006-01-02T15:04:05Z")
+		response := Advice{
+			Content:    adviceInfo.Content,
+			Anonymity:  adviceInfo.Anonymity,
+			CreateTime: formattedTime,
+		}
+		responseAdvice = append(responseAdvice, response)
+	}
 
-	utils.JsonSuccessResponse(c, advice)
+	utils.JsonSuccessResponse(c, responseAdvice)
 }

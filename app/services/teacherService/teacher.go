@@ -17,32 +17,34 @@ func GetUserByID(id int) (*models.User, error) {
 	return &user, result.Error
 }
 
-func StudentList(targetId int) ([]models.Student, error) {
+func StudentList(targetId int, checkStudentList int) ([]models.Student, error) {
 	var studentList []models.Student
-	result := database.DB.Model(models.Student{}).Where(&models.Student{
-		TargetID: targetId,
-	}).Where("target_status = ? AND admin_status = ?", 0, 0).Find(&studentList)
-	if len(studentList) == 0 {
+	if checkStudentList == 1 {
+		result := database.DB.Model(models.Student{}).Where(&models.Student{
+			TargetID:     targetId,
+			TargetStatus: 1,
+		}).Find(&studentList)
+		if len(studentList) == 0 {
+			return []models.Student{}, nil
+		}
+		for i := range studentList {
+			aseDecryptStudentInfo(&studentList[i])
+		}
+		return studentList, result.Error
+	} else if checkStudentList == 2 {
+		result := database.DB.Model(models.Student{}).
+			Where("target_id = ? AND target_status IN (?)", targetId, []int{2, 3}).
+			Find(&studentList)
+		if len(studentList) == 0 {
+			return []models.Student{}, nil
+		}
+		for i := range studentList {
+			aseDecryptStudentInfo(&studentList[i])
+		}
+		return studentList, result.Error
+	} else {
 		return []models.Student{}, nil
 	}
-	for i := range studentList {
-		aseDecryptStudentInfo(&studentList[i])
-	}
-	return studentList, result.Error
-}
-
-func StudentCheckList(targetId int) ([]models.Student, error) {
-	var studentList []models.Student
-	result := database.DB.Model(models.Student{}).Where(models.Student{
-		TargetID: targetId,
-	}).Where("target_status IN (?)", []int{1, 2}).Find(&studentList)
-	if len(studentList) == 0 {
-		return []models.Student{}, nil
-	}
-	for i := range studentList {
-		aseDecryptStudentInfo(&studentList[i])
-	}
-	return studentList, result.Error
 }
 
 func GetStudentInfoByStudentID(studentId string) (*models.Student, error) {
@@ -148,6 +150,19 @@ func UpdateTeacher(id int, studentsNum int) error {
 	return nil
 }
 
+func StudentJoinTeacher(studentID string, targetId int) error {
+	var student models.Student
+	database.DB.Take(&student, "student_id = ?", studentID)
+	var teacher models.Teacher
+	database.DB.Take(&teacher, "id = ?", targetId)
+	student, err := userService.GetStudentByID(student.UserID)
+	if err != nil {
+		return err
+	}
+	err = database.DB.Model(&teacher).Association("Students").Append(&student)
+	return err
+}
+
 func Disassociate(studentID string, targetId int) error {
 	var student models.Student
 	database.DB.Take(&student, "student_id = ?", studentID)
@@ -161,7 +176,7 @@ func Disassociate(studentID string, targetId int) error {
 	if err != nil {
 		return err
 	}
-	result := database.DB.Model(&student).Updates(map[string]interface{}{"target_status": 2})
+	result := database.DB.Model(&student).Updates(map[string]interface{}{"target_status": 3})
 	if result.Error != nil {
 		return result.Error
 	}

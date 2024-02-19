@@ -11,7 +11,7 @@ import (
 // 教师审批
 type CheckData struct {
 	StudentsID []string `json:"students_id" binding:"required"`
-	Check      int      `json:"check" binding:"required"` // 1:同意 2:拒绝
+	Check      int      `json:"check" binding:"required"` // 2:同意 3:拒绝
 }
 
 func CheckByTeacher(c *gin.Context) {
@@ -64,11 +64,24 @@ func CheckByTeacher(c *gin.Context) {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
-			studentInfo.TargetStatus = 1
+			studentInfo.TargetStatus = 2
 			err = teacherService.UpdateStudentInfo(studentId, studentInfo)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
+			}
+			if studentInfo.AdminStatus == 2 {
+				teacher.StudentsNum = teacher.StudentsNum + 1
+				err = teacherService.UpdateTeacher(userId.(int), teacher.StudentsNum)
+				if err != nil {
+					utils.JsonErrorResponse(c, apiException.ServerError)
+					return
+				}
+				err = teacherService.StudentJoinTeacher(studentId, studentInfo.TargetID)
+				if err != nil {
+					utils.JsonErrorResponse(c, apiException.ServerError)
+					return
+				}
 			}
 		}
 	} else if data.Check == 2 {
@@ -78,7 +91,7 @@ func CheckByTeacher(c *gin.Context) {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
-			studentInfo.TargetStatus = 2
+			studentInfo.TargetStatus = 3
 			teacher.StudentsNum = teacher.StudentsNum - 1
 			err = teacherService.UpdateTeacher(userId.(int), teacher.StudentsNum)
 			if err != nil {
@@ -145,12 +158,24 @@ func CancelStudent(c *gin.Context) {
 		return
 	}
 
-	if studentInfo.TargetStatus != 1 || studentInfo.AdminStatus != 1 {
+	if studentInfo.TargetStatus != 2 || studentInfo.AdminStatus != 2 {
 		utils.JsonErrorResponse(c, apiException.StatusWrong)
 		return
 	}
 
 	err = teacherService.Disassociate(data.StudentID, studentInfo.TeacherID)
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	teacher, _, err := teacherService.GetTeacherByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	teacher.StudentsNum = teacher.StudentsNum - 1
+	err = teacherService.UpdateTeacher(userId.(int), teacher.StudentsNum)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -211,16 +236,16 @@ func WithdrawApproval(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
-		if studentInfo.TargetStatus == 1 {
-			studentInfo.TargetStatus = 0
-		} else if studentInfo.TargetStatus == 2 {
+		if studentInfo.TargetStatus == 2 {
+			studentInfo.TargetStatus = 1
+		} else if studentInfo.TargetStatus == 3 {
 			teacher.StudentsNum = teacher.StudentsNum + 1
 			err = teacherService.UpdateTeacher(userId.(int), teacher.StudentsNum)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
-			studentInfo.TargetStatus = 0
+			studentInfo.TargetStatus = 1
 		} else {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return

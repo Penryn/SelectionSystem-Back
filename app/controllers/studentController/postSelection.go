@@ -63,7 +63,7 @@ func PostTeacher(c *gin.Context) {
 		return
 	}
 
-	if studentInfo.TargetID != 0 && studentInfo.TargetStatus == 0 {
+	if studentInfo.TargetID != 0 && studentInfo.TargetStatus == 1 {
 		originTargetTeacher, _, err := studentService.GetTeacherByTeacherID(studentInfo.TargetID)
 		if err != nil {
 			utils.JsonErrorResponse(c, apiException.ServerError)
