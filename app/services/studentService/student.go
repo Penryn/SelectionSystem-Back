@@ -53,7 +53,7 @@ func UpdateStudentInfo(userId int, info models.Student) error {
 
 func UpdateTargetTeacher(userId, targetId int, info *models.Student) error {
 	info.TargetID = targetId
-	info.TargetStatus = 0
+	info.TargetStatus = 1
 	info.AdminStatus = 0
 	aseEncryptStudentInfo(info)
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
@@ -138,6 +138,7 @@ func UpdateSelectionTable(userId int, document string) error {
 		return err
 	}
 	student.SelectionTable = document
+	student.AdminStatus = 1
 	if err := database.DB.Omit("teacher_id").Save(&student).Error; err != nil {
 		return err
 	}
