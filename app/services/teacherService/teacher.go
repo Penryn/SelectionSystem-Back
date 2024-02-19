@@ -21,21 +21,7 @@ func StudentList(targetId int) ([]models.Student, error) {
 	var studentList []models.Student
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
 		TargetID: targetId,
-	}).Where("target_status = ? AND admin_status = ?", 0, 0).Find(&studentList)
-	if len(studentList) == 0 {
-		return []models.Student{}, nil
-	}
-	for i := range studentList {
-		aseDecryptStudentInfo(&studentList[i])
-	}
-	return studentList, result.Error
-}
-
-func StudentCheckList(targetId int) ([]models.Student, error) {
-	var studentList []models.Student
-	result := database.DB.Model(models.Student{}).Where(models.Student{
-		TargetID: targetId,
-	}).Where("target_status IN (?)", []int{1, 2}).Find(&studentList)
+	}).Find(&studentList)
 	if len(studentList) == 0 {
 		return []models.Student{}, nil
 	}

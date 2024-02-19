@@ -26,7 +26,7 @@ type Student struct {
 	AdminStatus     int    `json:"admin_agree" binding:"required"`
 }
 
-// 获取未审批的学生列表
+// 获取学生列表
 func GetStudentList(c *gin.Context) {
 	userId, er := c.Get("ID")
 	if !er {
@@ -51,67 +51,6 @@ func GetStudentList(c *gin.Context) {
 		return
 	}
 	studentList, err := teacherService.StudentList(teacher.ID)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	var responseStudentList = make([]Student, 0)
-	for _, student := range studentList {
-		studentInfo, err := teacherService.GetUserByID(student.UserID)
-		if err != nil {
-			utils.JsonErrorResponse(c, apiException.ServerError)
-			return
-		}
-
-		response := Student{
-			ID:              student.ID,
-			StudentID:       student.StudentID,
-			Name:            student.Name,
-			Class:           student.Class,
-			Phone:           student.Phone,
-			PoliticalStatus: student.PoliticalStatus,
-			Email:           student.Email,
-			Address:         student.Address,
-			Plan:            student.Plan,
-			Experience:      student.Experience,
-			Honor:           student.Honor,
-			Interest:        student.Interest,
-			Avatar:          studentInfo.Avartar,
-			TargetStatus:    student.TargetStatus,
-			AdminStatus:     student.AdminStatus,
-		}
-		responseStudentList = append(responseStudentList, response)
-	}
-
-	utils.JsonSuccessResponse(c, responseStudentList)
-}
-
-// 获取已审批的学生列表
-func GetCheckStudentList(c *gin.Context) {
-	userId, er := c.Get("ID")
-	if !er {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	user, err := teacherService.GetUserByID(userId.(int))
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	if user.Type != 2 && user.Type != 3 {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-
-	teacher, _, err := teacherService.GetTeacherByUserID(userId.(int))
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
-	studentList, err := teacherService.StudentCheckList(teacher.ID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
