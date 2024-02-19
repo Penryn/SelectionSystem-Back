@@ -105,7 +105,7 @@ func UploadAvatar(c *gin.Context) {
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{
-		"avatar": "http://" + url,
+		"avatar":  url,
 	})
 }
 
