@@ -105,7 +105,7 @@ func CheckTable(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
-		if student.AdminStatus != 0 {
+		if student.AdminStatus != 1 {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
@@ -203,7 +203,7 @@ func Disassociate(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	if student.AdminStatus != 1 {
+	if student.AdminStatus != 2 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
