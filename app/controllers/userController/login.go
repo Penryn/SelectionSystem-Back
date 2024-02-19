@@ -119,6 +119,7 @@ func Login(c *gin.Context) {
 	type loginresult struct {
 		Token   string `json:"token"`
 		Msg     string `json:"msg"`
+		Type    int    `json:"type"`
 		Avartar string `json:"avartar"`
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -127,6 +128,7 @@ func Login(c *gin.Context) {
 		"data": loginresult{
 			Token:   token,
 			Msg:     msg,
+			Type:	user.Type,
 			Avartar: user.Avartar},
 	})
 }
