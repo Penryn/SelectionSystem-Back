@@ -71,6 +71,12 @@ func CheckByTeacher(c *gin.Context) {
 				return
 			}
 			if studentInfo.AdminStatus == 2 {
+				teacher.StudentsNum = teacher.StudentsNum + 1
+				err = teacherService.UpdateTeacher(userId.(int), teacher.StudentsNum)
+				if err != nil {
+					utils.JsonErrorResponse(c, apiException.ServerError)
+					return
+				}
 				err = teacherService.StudentJoinTeacher(studentId, studentInfo.TargetID)
 				if err != nil {
 					utils.JsonErrorResponse(c, apiException.ServerError)
