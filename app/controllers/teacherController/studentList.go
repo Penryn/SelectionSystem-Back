@@ -133,7 +133,7 @@ func GetUltimateStudentList(c *gin.Context) {
 
 type StudentData struct {
 	Name            string `json:"name"`
-	StudentID       string `json:"studentID"`
+	StudentID       string `json:"student_id"`
 	Class           string `json:"class"`
 	Phone           string `json:"phone"`
 	PoliticalStatus string `json:"political_status"`

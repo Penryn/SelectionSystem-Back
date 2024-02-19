@@ -134,6 +134,19 @@ func UpdateTeacher(id int, studentsNum int) error {
 	return nil
 }
 
+func StudentJoinTeacher(studentID string, targetId int) error {
+	var student models.Student
+	database.DB.Take(&student, "student_id = ?", studentID)
+	var teacher models.Teacher
+	database.DB.Take(&teacher, "id = ?", targetId)
+	student, err := userService.GetStudentByID(student.UserID)
+	if err != nil {
+		return err
+	}
+	err = database.DB.Model(&teacher).Association("Students").Append(&student)
+	return err
+}
+
 func Disassociate(studentID string, targetId int) error {
 	var student models.Student
 	database.DB.Take(&student, "student_id = ?", studentID)

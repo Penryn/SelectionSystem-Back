@@ -45,7 +45,7 @@ func CheckByTeacher(c *gin.Context) {
 		return
 	}
 
-	if data.Check == 2 {
+	if data.Check == 1 {
 		studentsNum, err := teacherService.GetStudentsNumByTarget(teacher.ID)
 		if err != nil {
 			utils.JsonErrorResponse(c, apiException.ServerError)
@@ -57,7 +57,7 @@ func CheckByTeacher(c *gin.Context) {
 		}
 	}
 
-	if data.Check == 2 {
+	if data.Check == 1 {
 		for _, studentId := range data.StudentsID {
 			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
 			if err != nil {
@@ -70,8 +70,15 @@ func CheckByTeacher(c *gin.Context) {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
+			if studentInfo.AdminStatus == 2 {
+				err = teacherService.StudentJoinTeacher(studentId, studentInfo.TargetID)
+				if err != nil {
+					utils.JsonErrorResponse(c, apiException.ServerError)
+					return
+				}
+			}
 		}
-	} else if data.Check == 3 {
+	} else if data.Check == 2 {
 		for _, studentId := range data.StudentsID {
 			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
 			if err != nil {
