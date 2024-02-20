@@ -127,7 +127,7 @@ func UploadSelectionTable(c *gin.Context) {
 		return
 	}
 	//查询教师是否同意
-	if student.TargetStatus != 1 {
+	if student.TargetStatus != 2 {
 		utils.JsonErrorResponse(c, apiException.StatusWrong)
 		return
 	}
