@@ -105,6 +105,10 @@ func CheckTable(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
+		if student.TargetStatus != 2 {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
 		if student.AdminStatus != 1 {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return

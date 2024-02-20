@@ -67,9 +67,8 @@ func Allocate() {
 		log.Fatal("Server start error:", err)
 		return
 	}
-	fmt.Println(123)
 	for _, student := range students {
-		if student.TargetID == 0 {
+		if (student.TargetID == 0)||(student.TargetID != 0&&student.TargetStatus == 3)||(student.TargetID != 0&&student.AdminStatus == 3) {
 			//获取所有教师
 			teachers_id, err := timeService.QueryTeachers()
 			if err != nil {
