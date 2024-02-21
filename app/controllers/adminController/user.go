@@ -87,7 +87,7 @@ func GetUserByAdmin(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	var response []GetUserResponse
+	response:=make([]GetUserResponse,0)
 	for _, v := range users {
 		response = append(response, GetUserResponse{
 			ID:       v.ID,

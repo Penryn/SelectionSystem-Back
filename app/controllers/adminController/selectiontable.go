@@ -165,7 +165,7 @@ func GetPost(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	var result []GetPostResponse
+	result:=make([]GetPostResponse,0)
 	for i := 0; i < len(students); i++ {
 		result = append(result, GetPostResponse{StudentID: students[i].StudentID, Name: students[i].Name})
 	}
@@ -266,7 +266,7 @@ func GetTeacherWithStudents(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	var result []Request
+	result := make([]Request, 0)
 	for i := 0; i < len(teachers); i++ {
 		var students []Student
 		for j := 0; j < len(teachers[i].Students); j++ {

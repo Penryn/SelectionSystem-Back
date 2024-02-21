@@ -54,7 +54,7 @@ func GetAdvice(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	var adviceResponse []GetAdviceResponse
+	adviceResponse:=make([]GetAdviceResponse,0)
 	for _, advice := range advices {
 		student ,err:= userService.GetStudentByID(advice.UserID)
 		if err != nil {
