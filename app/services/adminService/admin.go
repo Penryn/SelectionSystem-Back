@@ -137,7 +137,7 @@ func Disassociate(studentID string,target_id int) error {
 	if err != nil {
 		return err
 	}
-	result := database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 1})
+	result := database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 0})
 	return result.Error
 }
 
