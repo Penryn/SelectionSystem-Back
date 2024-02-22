@@ -42,7 +42,7 @@ func RandomTeacher(teachers_id []int) int {
 }
 
 func UpdateStudent(student models.Student) error {
-	result := database.DB.Model(&models.Student{}).Where("id=?", student.ID).Updates(map[string]interface{}{"target_id": student.TargetID, "target_status": 1})
+	result := database.DB.Model(&models.Student{}).Where("id=?", student.ID).Updates(map[string]interface{}{"target_id": student.TargetID, "target_status": 2})
 	return result.Error
 }
 
