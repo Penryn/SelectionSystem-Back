@@ -85,8 +85,8 @@ func GetStudentByID(id int) (models.Student, error) {
 
 
 func UpdatePassword(user models.User, newPassword string) error {
-	AseEncryptPassword(&user)
-	result := database.DB.Model(&user).Update("password", newPassword)
+	password :=utils.AesEncrypt(newPassword)
+	result := database.DB.Model(&user).Update("password", password)
 	return result.Error
 }
 

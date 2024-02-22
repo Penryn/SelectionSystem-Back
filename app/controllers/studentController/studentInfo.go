@@ -97,7 +97,6 @@ func GetStudentInfo(c *gin.Context) {
 
 type StudentInfoData struct {
 	Name            string `json:"name" binding:"required"`
-	StudentID       string `json:"student_id" binding:"required"`
 	Class           string `json:"class" binding:"required"`
 	Phone           string `json:"phone" binding:"required"`
 	PoliticalStatus string `json:"political_status" binding:"required"`

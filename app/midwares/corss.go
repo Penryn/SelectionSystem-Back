@@ -1,7 +1,10 @@
 package midwares
 
 import (
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
 )
 
 func Corss(c *gin.Context) {
@@ -16,4 +19,12 @@ func Corss(c *gin.Context) {
 		return
 	}
 	c.Next()
+}
+
+
+func Cors()gin.HandlerFunc{
+	config:=cors.DefaultConfig()
+	config.AllowAllOrigins=true
+	config.AllowHeaders=append(config.AllowHeaders,"Authorization")
+	return cors.New(config)
 }
