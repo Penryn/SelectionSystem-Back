@@ -62,6 +62,22 @@ func GetStudentInfoByStudentID(studentId string) (*models.Student, error) {
 	return &info, nil
 }
 
+func CheckStudent(studentId string, targetId int) (*models.Student, error) {
+	var info models.Student
+	result := database.DB.Where(&models.Student{
+		StudentID: studentId,
+		TargetID:  targetId,
+	}).First(&info)
+	if result.Error == gorm.ErrRecordNotFound {
+		info.StudentID = studentId
+		return &info, result.Error
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+	aseDecryptStudentInfo(&info)
+	return &info, nil
+}
+
 func GetTeacherByUserID(userID int) (*models.Teacher, int, error) {
 	var teacher *models.Teacher
 	result := database.DB.Preload("Students").Where("user_id = ?", userID).First(&teacher)

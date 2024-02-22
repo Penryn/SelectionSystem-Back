@@ -5,6 +5,7 @@ import (
 	"SelectionSystem-Back/app/services/teacherService"
 	"SelectionSystem-Back/app/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -59,6 +60,11 @@ func CheckByTeacher(c *gin.Context) {
 
 	if data.Check == 1 {
 		for _, studentId := range data.StudentsID {
+			_, err = teacherService.CheckStudent(studentId, teacher.ID)
+			if err != nil && err == gorm.ErrRecordNotFound {
+				utils.JsonErrorResponse(c, apiException.StatusWrong)
+				return
+			}
 			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
@@ -86,6 +92,11 @@ func CheckByTeacher(c *gin.Context) {
 		}
 	} else if data.Check == 2 {
 		for _, studentId := range data.StudentsID {
+			_, err = teacherService.CheckStudent(studentId, teacher.ID)
+			if err != nil && err == gorm.ErrRecordNotFound {
+				utils.JsonErrorResponse(c, apiException.StatusWrong)
+				return
+			}
 			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
