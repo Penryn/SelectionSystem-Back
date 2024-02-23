@@ -195,3 +195,50 @@ func GetStudentInfo(c *gin.Context) {
 
 	utils.JsonSuccessResponse(c, response)
 }
+
+type MessagedStudent struct {
+	UserID int    `json:"user_id" binding:"required"`
+	Name   string `json:"name" binding:"Required"`
+}
+
+// 获取私聊过自己的学生列表
+func GetMessagedStudentList(c *gin.Context) {
+	userId, er := c.Get("ID")
+	if !er {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	user, err := teacherService.GetUserByID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	if user.Type != 2 && user.Type != 3 {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	conversations, err := teacherService.GetMessagedStudentListByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	var responseStudentList = make([]MessagedStudent, 0)
+	for _, conversation := range conversations {
+		studentInfo, err := teacherService.GetStudentInfoByUserID(conversation.UserAID)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		response := MessagedStudent{
+			UserID: conversation.UserAID,
+			Name:   studentInfo.Name,
+		}
+		responseStudentList = append(responseStudentList, response)
+	}
+
+	utils.JsonSuccessResponse(c, responseStudentList)
+}

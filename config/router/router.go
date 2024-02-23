@@ -60,6 +60,7 @@ func Init(r *gin.Engine) {
 			teacher.GET("get-student", teacherController.GetUltimateStudentList)
 			teacher.PUT("/student/post", teacherController.WithdrawApproval)
 			teacher.GET("/studentInfo", teacherController.GetStudentInfo)
+			teacher.GET("message", teacherController.GetMessagedStudentList)
 		}
 	}
 }
