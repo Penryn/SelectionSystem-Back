@@ -28,6 +28,7 @@ func Init(r *gin.Engine) {
 			user.GET("/admin/time", userController.GetAdminDDL)
 			user.GET("/teacher/time", userController.GetTeacherDDL)
 			user.POST("/avatar", userController.UploadAvatar)
+			user.GET("student", userController.GetMessagedStudentList)
 		}
 		admin := api.Group("/admin").Use(midwares.JWTAuthMiddleware())
 		{
@@ -60,7 +61,6 @@ func Init(r *gin.Engine) {
 			teacher.GET("get-student", teacherController.GetUltimateStudentList)
 			teacher.PUT("/student/post", teacherController.WithdrawApproval)
 			teacher.GET("/studentInfo", teacherController.GetStudentInfo)
-			teacher.GET("message", teacherController.GetMessagedStudentList)
 		}
 	}
 }
