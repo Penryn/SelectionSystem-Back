@@ -2,6 +2,7 @@ package userController
 
 import (
 	"SelectionSystem-Back/app/apiException"
+	"SelectionSystem-Back/app/services/teacherService"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
 	"time"
@@ -61,7 +62,7 @@ type GetConversationResponse struct {
 
 func GetConversation(c *gin.Context) {
 	var data GetConversationData
-	err:=c.ShouldBindQuery(&data)
+	err := c.ShouldBindQuery(&data)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ParamError)
 		return
@@ -110,4 +111,46 @@ func GetConversation(c *gin.Context) {
 		}
 	}
 	utils.JsonSuccessResponse(c, response)
+}
+
+type MessagedStudent struct {
+	UserID int    `json:"user_id" binding:"required"`
+	Name   string `json:"name" binding:"Required"`
+}
+
+// 获取私聊过自己的学生列表
+func GetMessagedStudentList(c *gin.Context) {
+	userId, er := c.Get("ID")
+	if !er {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	user, err := teacherService.GetUserByID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	conversations, err := teacherService.GetMessagedStudentListByUserID(user.ID)
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	var responseStudentList = make([]MessagedStudent, 0)
+	for _, conversation := range conversations {
+		studentInfo, err := teacherService.GetStudentInfoByUserID(conversation.UserAID)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
+		response := MessagedStudent{
+			UserID: conversation.UserAID,
+			Name:   studentInfo.Name,
+		}
+		responseStudentList = append(responseStudentList, response)
+	}
+
+	utils.JsonSuccessResponse(c, responseStudentList)
 }
