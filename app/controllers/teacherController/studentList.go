@@ -29,6 +29,10 @@ type Student struct {
 func GetStudentList(c *gin.Context) {
 	check := c.Query("check")
 	checkStudentList, err := strconv.Atoi(check)
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ParamError)
+		return
+	}
 	userId, er := c.Get("ID")
 	if !er {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -215,12 +219,8 @@ func GetMessagedStudentList(c *gin.Context) {
 		return
 	}
 
-	if user.Type != 2 && user.Type != 3 {
-		utils.JsonErrorResponse(c, apiException.ServerError)
-		return
-	}
 
-	conversations, err := teacherService.GetMessagedStudentListByUserID(userId.(int))
+	conversations, err := teacherService.GetMessagedStudentListByUserID(user.ID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

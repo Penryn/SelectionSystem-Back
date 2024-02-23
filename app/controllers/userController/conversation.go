@@ -50,7 +50,7 @@ func SendConversation(c *gin.Context) {
 }
 
 type GetConversationData struct {
-	UserID int `json:"user_id"`
+	UserID int `form:"user_id"`
 }
 type GetConversationResponse struct {
 	UserAName string    `json:"user_a_name"`
@@ -61,7 +61,7 @@ type GetConversationResponse struct {
 
 func GetConversation(c *gin.Context) {
 	var data GetConversationData
-	err := c.ShouldBindJSON(&data)
+	err:=c.ShouldBindQuery(&data)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ParamError)
 		return
