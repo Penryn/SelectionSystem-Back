@@ -61,3 +61,31 @@ func DDLSetByTeacher(c *gin.Context) {
 
 	utils.JsonSuccessResponse(c, nil)
 }
+
+func GetDDL(c *gin.Context) {
+	userId, er := c.Get("ID")
+	if !er {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	user, err := teacherService.GetUserByID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	if user.Type != 2 && user.Type != 3 {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+
+	ddl, err := teacherService.GetDDLByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	formattedTime := ddl.FirstDDL.Format("2006-01-02T15:04:05Z")
+
+	utils.JsonSuccessResponse(c, formattedTime)
+}

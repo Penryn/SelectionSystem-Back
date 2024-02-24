@@ -224,6 +224,15 @@ func Disassociate(studentID string, targetId int) error {
 	return err
 }
 
+func GetDDLByUserID(userId int) (models.DDL, error) {
+	var ddl models.DDL
+	result := database.DB.Where(models.DDL{
+		UserID:  userId,
+		DDLType: 1,
+	}).First(&ddl)
+	return ddl, result.Error
+}
+
 func aseEncryptStudentInfo(student *models.Student) {
 	student.Email = utils.AesEncrypt(student.Email)
 	student.Phone = utils.AesEncrypt(student.Phone)
