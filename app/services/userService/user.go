@@ -246,6 +246,20 @@ func UpdateAvatar(userId int, avatar string) error {
 	return nil
 }
 
+func GetStudentByUserID(userID int) (models.Student,error) {
+	var student models.Student
+	result:=database.DB.Where(models.Student{UserID: userID}).First(&student)
+	AseDecryptStudentInfo(&student)
+	return student,result.Error
+}
+
+func GetTeacherByUserID(userID int) (models.Teacher,error) {
+	var teacher models.Teacher
+	result:=database.DB.Where(models.Teacher{UserID: userID}).First(&teacher)
+	return teacher,result.Error
+}
+
+
 func AseEncryptPassword(user *models.User){
 	user.Password = utils.AesEncrypt(user.Password)
 }

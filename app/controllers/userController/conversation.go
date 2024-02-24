@@ -2,6 +2,7 @@ package userController
 
 import (
 	"SelectionSystem-Back/app/apiException"
+	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/app/services/teacherService"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
@@ -92,19 +93,41 @@ func GetConversation(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
+	//获取名称
+	var usera_name string
+	var userb_name string
+	if userA.Type == 1 {
+		user, _ := userService.GetStudentByUserID(userA.ID)
+		usera_name = user.Name
+	} else if userA.Type == 2 {
+		user, _ := userService.GetTeacherByUserID(userA.ID)
+		usera_name = user.TeacherName
+	} else {
+		usera_name = "管理员"
+	}
+	if userB.Type == 1 {
+		user, _ := userService.GetStudentByUserID(userB.ID)
+		userb_name = user.Name
+	} else if userB.Type == 2 {
+		user, _ := userService.GetTeacherByUserID(userB.ID)
+		userb_name = user.TeacherName
+	} else {
+		userb_name = "管理员"
+	}
+
 	var response []GetConversationResponse
 	for _, conversation := range conversations {
 		if conversation.UserAID == userA.ID {
 			response = append(response, GetConversationResponse{
-				UserAName: userA.Username,
-				UserBName: userB.Username,
+				UserAName: usera_name,
+				UserBName: "",
 				Message:   conversation.Content,
 				Time:      conversation.Time,
 			})
 		} else {
 			response = append(response, GetConversationResponse{
-				UserAName: userB.Username,
-				UserBName: userA.Username,
+				UserAName: "",
+				UserBName: userb_name,
 				Message:   conversation.Content,
 				Time:      conversation.Time,
 			})
@@ -118,7 +141,7 @@ type MessagedStudent struct {
 	Name   string `json:"name" binding:"Required"`
 }
 
-// 获取私聊过自己的学生列表
+// 获取私聊过自己的用户列表
 func GetMessagedStudentList(c *gin.Context) {
 	userId, er := c.Get("ID")
 	if !er {
@@ -137,17 +160,44 @@ func GetMessagedStudentList(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-
 	var responseStudentList = make([]MessagedStudent, 0)
+	var cuser models.User
 	for _, conversation := range conversations {
-		studentInfo, err := teacherService.GetStudentInfoByUserID(conversation.UserAID)
-		if err != nil {
-			utils.JsonErrorResponse(c, apiException.ServerError)
-			return
+		if conversation.UserBID == user.ID {
+			cuser, err = userService.GetUserByID(conversation.UserAID)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
+		}else {
+			cuser, err = userService.GetUserByID(conversation.UserBID)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
+		}
+
+		var name string
+		if cuser.Type == 1 {
+			studentInfo, err := userService.GetStudentByUserID(cuser.ID)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
+			name = studentInfo.Name
+		} else if cuser.Type == 2 {
+			teacherInfo, err := userService.GetTeacherByUserID(cuser.ID)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
+			name = teacherInfo.TeacherName
+		} else {
+			name = "管理员"
 		}
 		response := MessagedStudent{
-			UserID: conversation.UserAID,
-			Name:   studentInfo.Name,
+			UserID: cuser.ID,
+			Name:   name,
 		}
 		responseStudentList = append(responseStudentList, response)
 	}

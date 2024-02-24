@@ -131,11 +131,10 @@ func GetMessagedStudentListByUserID(userId int) ([]models.Conversation, error) {
 	var conversation []models.Conversation
 	result := database.DB.Where(models.Conversation{
 		UserBID: userId,
+	}).Or(models.Conversation{
+		UserAID: userId,
 	}).Find(&conversation)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return conversation, nil
+	return conversation, result.Error
 }
 
 func GetStudentInfoByUserID(userId int) (*models.Student, error) {
