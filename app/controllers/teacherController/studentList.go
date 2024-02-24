@@ -23,6 +23,7 @@ type Student struct {
 	Avatar          string `json:"avartar" binding:"required"`
 	TargetStatus    int    `json:"target_agree" binding:"required"`
 	AdminStatus     int    `json:"admin_agree" binding:"required"`
+	Status          int    `json:"status" binding:"required"`
 }
 
 // 获取学生列表
@@ -68,7 +69,17 @@ func GetStudentList(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
-
+		var status int
+		if student.TargetStatus == 1 {
+			status = 0
+		} else if student.TargetStatus == 2 {
+			status = 1
+		} else if student.TargetStatus == 3 {
+			status = 2
+		} else {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
 		response := Student{
 			StudentID:       student.StudentID,
 			Name:            student.Name,
@@ -84,6 +95,7 @@ func GetStudentList(c *gin.Context) {
 			Avatar:          studentInfo.Avartar,
 			TargetStatus:    student.TargetStatus,
 			AdminStatus:     student.AdminStatus,
+			Status:          status,
 		}
 		responseStudentList = append(responseStudentList, response)
 	}
