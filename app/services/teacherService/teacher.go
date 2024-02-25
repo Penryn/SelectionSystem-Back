@@ -137,21 +137,6 @@ func GetMessagedStudentListByUserID(userId int) ([]models.Conversation, error) {
 	return conversation, result.Error
 }
 
-func GetStudentInfoByUserID(userId int) (*models.Student, error) {
-	var info models.Student
-	result := database.DB.Where(&models.Student{
-		UserID: userId,
-	}).First(&info)
-	if result.Error == gorm.ErrRecordNotFound {
-		info.UserID = userId
-		return &info, result.Error
-	} else if result.Error != nil {
-		return nil, result.Error
-	}
-	aseDecryptStudentInfo(&info)
-	return &info, nil
-}
-
 func UpdateStudentInfo(studentId string, info *models.Student) error {
 	aseEncryptStudentInfo(info)
 	result := database.DB.Model(models.Student{}).Where(&models.Student{
@@ -222,6 +207,15 @@ func Disassociate(studentID string, targetId int) error {
 		return result.Error
 	}
 	return err
+}
+
+func GetDDLByUserID(userId int) (models.DDL, error) {
+	var ddl models.DDL
+	result := database.DB.Where(models.DDL{
+		UserID:  userId,
+		DDLType: 1,
+	}).First(&ddl)
+	return ddl, result.Error
 }
 
 func aseEncryptStudentInfo(student *models.Student) {
