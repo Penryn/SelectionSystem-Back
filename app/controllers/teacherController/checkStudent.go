@@ -62,7 +62,7 @@ func CheckByTeacher(c *gin.Context) {
 		for _, studentId := range data.StudentsID {
 			_, err = teacherService.CheckStudent(studentId, teacher.ID)
 			if err != nil && err == gorm.ErrRecordNotFound {
-				utils.JsonErrorResponse(c, apiException.StatusWrong)
+				utils.JsonErrorResponse(c, apiException.StudentNotFound)
 				return
 			}
 			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
@@ -94,7 +94,7 @@ func CheckByTeacher(c *gin.Context) {
 		for _, studentId := range data.StudentsID {
 			_, err = teacherService.CheckStudent(studentId, teacher.ID)
 			if err != nil && err == gorm.ErrRecordNotFound {
-				utils.JsonErrorResponse(c, apiException.StatusWrong)
+				utils.JsonErrorResponse(c, apiException.StudentNotFound)
 				return
 			}
 			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
@@ -170,7 +170,7 @@ func CancelStudent(c *gin.Context) {
 	}
 
 	if studentInfo.TargetStatus != 2 || studentInfo.AdminStatus != 2 {
-		utils.JsonErrorResponse(c, apiException.StatusWrong)
+		utils.JsonErrorResponse(c, apiException.StudentWrong)
 		return
 	}
 
