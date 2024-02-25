@@ -132,6 +132,7 @@ type GetPostData struct {
 type GetPostResponse struct {
 	StudentID string `json:"student_id"`
 	Name      string `json:"name"`
+	Status   int    `json:"status"`
 }
 
 func GetPost(c *gin.Context) {
@@ -167,7 +168,14 @@ func GetPost(c *gin.Context) {
 	}
 	result:=make([]GetPostResponse,0)
 	for i := 0; i < len(students); i++ {
-		result = append(result, GetPostResponse{StudentID: students[i].StudentID, Name: students[i].Name})
+		if students[i].AdminStatus == 1 {
+			result = append(result, GetPostResponse{StudentID: students[i].StudentID, Name: students[i].Name, Status: 0})
+		} else if students[i].AdminStatus == 2 {
+			result = append(result, GetPostResponse{StudentID: students[i].StudentID, Name: students[i].Name, Status: 1})
+		}else if students[i].AdminStatus == 3 {
+			result = append(result, GetPostResponse{StudentID: students[i].StudentID, Name: students[i].Name, Status: 2})
+		}
+
 	}
 	utils.JsonSuccessResponse(c, gin.H{"data": result, "total_page_num":math.Ceil(float64(*num)/float64(data.PageSize)) })
 }
