@@ -218,6 +218,17 @@ func GetDDLByUserID(userId int) (models.DDL, error) {
 	return ddl, result.Error
 }
 
+func GetReasonByID(id int) (models.Reason, error) {
+	var reason models.Reason
+	result := database.DB.Where(models.Reason{ID: id}).First(&reason)
+	return reason, result.Error
+}
+
+func SendConversation(userAID int, userBID int, message string) error {
+	result := database.DB.Create(&models.Conversation{UserAID: userAID, UserBID: userBID, Content: message, Time: time.Now()})
+	return result.Error
+}
+
 func aseEncryptStudentInfo(student *models.Student) {
 	student.Email = utils.AesEncrypt(student.Email)
 	student.Phone = utils.AesEncrypt(student.Phone)
