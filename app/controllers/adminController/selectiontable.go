@@ -11,8 +11,7 @@ import (
 )
 
 type GetTableData struct {
-	PageNum  int `form:"page_num" validate:"required"`
-	PageSize int `form:"page_size" validate:"required"`
+	StudentID string `form:"student_id"`
 }
 
 type GetTableRequest struct {
@@ -46,20 +45,13 @@ func GetTable(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	var num *int64
-	students,num, err := adminService.GetStudents(data.PageNum, data.PageSize)
+	//查询学生
+	student, err := userService.GetStudentByStudentID(data.StudentID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	var result []GetTableRequest
-	for i := 0; i < len(students); i++ {
-		result = append(result, GetTableRequest{StudentID: students[i].StudentID, Name: students[i].Name, SelectionTable: students[i].SelectionTable})
-	}
-	utils.JsonSuccessResponse(c, gin.H{
-		"data": result ,
-		"total_page_num": math.Ceil(float64(*num)/float64(data.PageSize)),
-	})
+	utils.JsonSuccessResponse(c, gin.H{"student_id": student.StudentID, "name": student.Name, "selection_table": student.SelectionTable})
 }
 
 type CheckTableData struct {
@@ -125,8 +117,8 @@ func CheckTable(c *gin.Context) {
 
 type GetPostData struct {
 	Check int `form:"check" validate:"oneof=1 2"` // 1:待处理 2:已处理
-	PageNum  int `form:"page_num" validate:"required"`
-	PageSize int `form:"page_size" validate:"required"`
+	Name string `form:"name"`
+	StudentID string `form:"student_id"`
 }
 
 type GetPostResponse struct {
@@ -160,8 +152,7 @@ func GetPost(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	var num *int64
-	students,num, err := adminService.GetCheckStudents(data.Check,data.PageNum,data.PageSize)
+	students, err := adminService.GetCheckStudents(data.Check,data.Name,data.StudentID)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
@@ -177,7 +168,7 @@ func GetPost(c *gin.Context) {
 		}
 
 	}
-	utils.JsonSuccessResponse(c, gin.H{"data": result, "total_page_num":math.Ceil(float64(*num)/float64(data.PageSize)) })
+	utils.JsonSuccessResponse(c, gin.H{"data": result})
 }
 
 type DisassociateData struct {

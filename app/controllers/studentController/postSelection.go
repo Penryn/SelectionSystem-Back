@@ -144,7 +144,7 @@ func UploadSelectionTable(c *gin.Context) {
 		return
 	}
 	// 构建文件URL并返回
-	const baseURL = "http://phlin.love/files/"
+	const baseURL = "https://phlin.love/files/"
 	fileName := student.Name + filepath.Ext(file.Filename)
 	url := baseURL + fileName
 	if _, err := os.Stat("./files"); os.IsNotExist(err) {
