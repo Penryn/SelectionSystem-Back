@@ -104,7 +104,7 @@ func GetTeacherByID(id int) (*models.Teacher, int, error) {
 
 func GetStudentsNumByTarget(targetId int) (int64, error) {
 	var studentsNum int64
-	result := database.DB.Model(models.Student{}).Where("target_id = ? AND target_status = ?", targetId, 1).Count(&studentsNum)
+	result := database.DB.Model(models.Student{}).Where("target_id = ? AND target_status = ?", targetId, 2).Count(&studentsNum)
 	if result.Error != nil {
 		return 0, result.Error
 	}
