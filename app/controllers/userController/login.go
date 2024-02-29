@@ -98,7 +98,7 @@ func Login(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.UserNotFind)
 			return
 		} else if err == nil {
-			if user.Password != data.Password {
+			if user.Password != data.Password ||user.Type!=data.Type {
 				utils.JsonErrorResponse(c, apiException.NoThatWrong)
 				return
 			}

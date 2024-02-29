@@ -24,7 +24,6 @@ func Init(r *gin.Engine) {
 			user.PUT("/reason", userController.UpdateReason)
 			user.DELETE("/reason", userController.DeleteReason)
 			user.GET("/reason", userController.GetReasons)
-			user.POST("/post-reason", userController.PostReason)
 			user.GET("/admin/time", userController.GetAdminDDL)
 			user.GET("/teacher/time", userController.GetTeacherDDL)
 			user.POST("/avatar", userController.UploadAvatar)

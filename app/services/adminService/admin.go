@@ -104,24 +104,27 @@ func StudentjoinTeacher(studentID string,target_id int) error {
 }
 
 
-func GetCheckStudents(check, pagenum, pagesize int) ([]models.Student, *int64, error) {
+func GetCheckStudents(check int,name string,studentid string) ([]models.Student, error) {
 	var students []models.Student
-	var num int64
 	var result *gorm.DB
 	if check == 1 {
-		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 1).Count(&num)
-		if result.Error != nil {
-			return students, nil, result.Error
-		}
-		result = database.DB.Where("admin_status = ?", 1).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
+		result = database.DB.Where(models.Student{
+			AdminStatus: 1,
+			Name:        name,
+			StudentID:   studentid,
+		}).Find(&students)
 	} else if check == 2 {
-		result = database.DB.Model(&models.Student{}).Where("admin_status = ?", 2).Or("admin_status = ?", 3).Count(&num)
-		if result.Error != nil {
-			return students, nil, result.Error
-		}
-		result = database.DB.Where("admin_status = ?", 2).Or("admin_status = ?", 3).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&students)
+		result = database.DB.Where(models.Student{
+			AdminStatus: 2,
+			Name:        name,
+			StudentID:   studentid,
+		}).Or(models.Student{
+			AdminStatus: 3,
+			Name:        name,
+			StudentID:   studentid,
+		}).Find(&students)
 	}
-	return students, &num, result.Error
+	return students, result.Error
 }
 
 func Disassociate(studentID string,target_id int) error {

@@ -202,6 +202,12 @@ func GetReasons(userID int) ([]models.Reason, error) {
 	return reasons, result.Error
 }
 
+func GetReasonsByReasonID(reasonID int) (models.Reason, error) {
+	var reason models.Reason
+	result := database.DB.Where(models.Reason{ID: reasonID}).First(&reason)
+	return reason, result.Error
+}
+
 func GetReasonByID(id int) (models.Reason, error) {
 	var reason models.Reason
 	result := database.DB.Where(models.Reason{ID: id}).First(&reason)
