@@ -37,13 +37,13 @@ func GetAdvices(pagenum,pagesize int) ([]models.Advice,*int64, error) {
 func  GetUsers(pagenum,pagesize int,name string) ([]models.User,*int64, error) {
 	var users []models.User
 	var num int64
-	result := database.DB.Model(&models.User{
+	result := database.DB.Model(&models.User{}).Where(models.User{
 		Username: name,
 	}).Count(&num)
 	if result.Error != nil {
 		return users, nil,result.Error
 	}
-	result = database.DB.Model(models.User{
+	result = database.DB.Where(models.User{
 		Username: name,
 	}).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&users)
 	//解密
