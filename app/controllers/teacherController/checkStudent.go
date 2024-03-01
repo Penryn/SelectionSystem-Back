@@ -12,7 +12,7 @@ import (
 // 教师审批
 type CheckInfo struct {
 	StudentID string `json:"student_id" binding:"required"`
-	ReasonID  int    `json:"reason_id" binding:"required"`
+	ReasonID  int    `json:"reason_id"`
 }
 type CheckData struct {
 	Check  int         `json:"check" binding:"required"` // 1:同意 2:拒绝

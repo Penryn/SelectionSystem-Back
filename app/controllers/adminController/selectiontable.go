@@ -56,7 +56,7 @@ func GetTable(c *gin.Context) {
 
 type CheckTableData struct {
 	StudentsID []string `json:"students_id" validate:"required"`
-	ReasonID  int      `json:"reason_id" validate:"required"`
+	ReasonID  int      `json:"reason_id"`
 	Check      int      `json:"check" validate:"oneof=1 2"` // 1:同意 2:拒绝
 }
 
@@ -83,6 +83,10 @@ func CheckTable(c *gin.Context) {
 	//鉴权
 	if user.Type != 3 {
 		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	if data.Check==2 && data.ReasonID==0{
+		utils.JsonErrorResponse(c, apiException.ReasonError)
 		return
 	}
 	//批量处理学生
