@@ -27,6 +27,7 @@ var (
 	StudentNotFound  = NewError(http.StatusInternalServerError, 200514, "您没有权限对该学生的请求进行审批")
 	StudentWrong     = NewError(http.StatusInternalServerError, 200515, "该学生并非您的学生")
 	ReasonError      = NewError(http.StatusInternalServerError, 200516, "拒绝时必须填写拒绝理由")	
+	AdminStatusError = NewError(http.StatusInternalServerError, 200517, "该用户并未与老师双向选择")
 	NotFound         = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	Unknown          = NewError(http.StatusInternalServerError, 300500, "系统异常，请稍后重试!")
 )
