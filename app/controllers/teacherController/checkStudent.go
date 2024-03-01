@@ -10,13 +10,10 @@ import (
 )
 
 // 教师审批
-type CheckInfo struct {
-	StudentID string `json:"student_id" binding:"required"`
-	ReasonID  int    `json:"reason_id"`
-}
 type CheckData struct {
-	Check  int         `json:"check" binding:"required"` // 1:同意 2:拒绝
-	Checks []CheckInfo `json:"checks" binding:"required"`
+	Check      int      `json:"check" binding:"required"` // 1:同意 2:拒绝
+	StudentsID []string `json:"students_id" binding:"required"`
+	ReasonID   int      `json:"reason_id"`
 }
 
 func CheckByTeacher(c *gin.Context) {
@@ -56,26 +53,34 @@ func CheckByTeacher(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
-		if int64(len(data.Checks)) > 6-studentsNum {
+		if int64(len(data.StudentsID)) > 6-studentsNum {
 			utils.JsonErrorResponse(c, apiException.OverNumber)
 			return
 		}
 	}
 
 	if data.Check == 1 {
-		for _, check := range data.Checks {
-			_, err = teacherService.CheckStudent(check.StudentID, teacher.ID)
+		for _, studentId := range data.StudentsID {
+			_, err = teacherService.CheckStudent(studentId, teacher.ID)
 			if err != nil && err == gorm.ErrRecordNotFound {
 				utils.JsonErrorResponse(c, apiException.StudentNotFound)
 				return
 			}
-			studentInfo, err := teacherService.GetStudentInfoByStudentID(check.StudentID)
+			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
+			if studentInfo.TargetStatus == 3 {
+				teacher.StudentsNum = teacher.StudentsNum + 1
+				err = teacherService.UpdateTeacher(userId.(int), teacher.StudentsNum)
+				if err != nil {
+					utils.JsonErrorResponse(c, apiException.ServerError)
+					return
+				}
+			}
 			studentInfo.TargetStatus = 2
-			err = teacherService.UpdateStudentInfo(check.StudentID, studentInfo)
+			err = teacherService.UpdateStudentInfo(studentId, studentInfo)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
@@ -87,7 +92,7 @@ func CheckByTeacher(c *gin.Context) {
 					utils.JsonErrorResponse(c, apiException.ServerError)
 					return
 				}
-				err = teacherService.StudentJoinTeacher(check.StudentID, studentInfo.TargetID)
+				err = teacherService.StudentJoinTeacher(studentId, studentInfo.TargetID)
 				if err != nil {
 					utils.JsonErrorResponse(c, apiException.ServerError)
 					return
@@ -95,13 +100,17 @@ func CheckByTeacher(c *gin.Context) {
 			}
 		}
 	} else if data.Check == 2 {
-		for _, check := range data.Checks {
-			_, err = teacherService.CheckStudent(check.StudentID, teacher.ID)
+		if data.ReasonID == 0 {
+			utils.JsonErrorResponse(c, apiException.ReasonError)
+			return
+		}
+		for _, studentId := range data.StudentsID {
+			_, err = teacherService.CheckStudent(studentId, teacher.ID)
 			if err != nil && err == gorm.ErrRecordNotFound {
 				utils.JsonErrorResponse(c, apiException.StudentNotFound)
 				return
 			}
-			studentInfo, err := teacherService.GetStudentInfoByStudentID(check.StudentID)
+			studentInfo, err := teacherService.GetStudentInfoByStudentID(studentId)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
@@ -113,12 +122,12 @@ func CheckByTeacher(c *gin.Context) {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
-			err = teacherService.UpdateStudentInfo(check.StudentID, studentInfo)
+			err = teacherService.UpdateStudentInfo(studentId, studentInfo)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
-			reason, err := teacherService.GetReasonByID(check.ReasonID)
+			reason, err := teacherService.GetReasonByID(data.ReasonID)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
