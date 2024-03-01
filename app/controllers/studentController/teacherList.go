@@ -11,6 +11,7 @@ import (
 type PageData struct {
 	PageNum  int `form:"page_num" binding:"required"`
 	PageSize int `form:"page_size" binding:"required"`
+	Name    string `form:"name"`
 }
 
 type Teacher struct {
@@ -50,7 +51,7 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
-	teacherList, err := studentService.GetTeacherList(data.PageNum, data.PageSize)
+	teacherList, err := studentService.GetTeacherList(data.PageNum, data.PageSize, data.Name)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return

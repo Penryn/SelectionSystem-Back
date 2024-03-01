@@ -34,14 +34,18 @@ func GetAdvices(pagenum,pagesize int) ([]models.Advice,*int64, error) {
 	return advices,&num, result.Error
 }
 
-func  GetUsers(pagenum,pagesize int) ([]models.User,*int64, error) {
+func  GetUsers(pagenum,pagesize int,name string) ([]models.User,*int64, error) {
 	var users []models.User
 	var num int64
-	result := database.DB.Model(&models.User{}).Count(&num)
+	result := database.DB.Model(&models.User{
+		Username: name,
+	}).Count(&num)
 	if result.Error != nil {
 		return users, nil,result.Error
 	}
-	result = database.DB.Find(&users)
+	result = database.DB.Model(models.User{
+		Username: name,
+	}).Limit(pagesize).Offset((pagenum-1)*pagesize).Find(&users)
 	//解密
 	for i:=0;i<len(users);i++{
 		users[i].Password=utils.AesDecrypt(users[i].Password)

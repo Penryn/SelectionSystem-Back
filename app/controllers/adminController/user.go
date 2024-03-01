@@ -51,6 +51,7 @@ func ResetUser(c *gin.Context) {
 type GetUserByAdminData struct {
 	PageNum int `form:"page_num" validate:"required"`
 	PageSize int `form:"page_size" validate:"required"`
+	UserName string `form:"user_name"`
 }
 
 type GetUserResponse struct {
@@ -82,7 +83,7 @@ func GetUserByAdmin(c *gin.Context) {
 		return
 	}
 	var num *int64
-	users, num,err := adminService.GetUsers(data.PageNum, data.PageSize)
+	users, num,err := adminService.GetUsers(data.PageNum, data.PageSize,data.UserName)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
