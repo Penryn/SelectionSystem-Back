@@ -9,8 +9,9 @@ import (
 )
 
 type PageData struct {
-	PageNum  int `form:"page_num" binding:"required"`
-	PageSize int `form:"page_size" binding:"required"`
+	PageNum  int    `form:"page_num" binding:"required"`
+	PageSize int    `form:"page_size" binding:"required"`
+	Name     string `form:"name"`
 }
 
 type Teacher struct {
@@ -63,8 +64,44 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
-	var responseTeacherList []Teacher
-	for _, teacher := range teacherList {
+	if data.Name == "" {
+		var responseTeacherList []Teacher
+		for _, teacher := range teacherList {
+			_, studentsNum, err := studentService.GetTeacherByTeacherID(teacher.ID)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
+			teacherDDL, err := studentService.GetTeacherDDLByUserID(teacher.UserID)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
+			formattedTime := teacherDDL.FirstDDL.Format("2006-01-02T15:04:05Z")
+			response := Teacher{
+				ID:          teacher.ID,
+				Name:        teacher.TeacherName,
+				Section:     teacher.Section,
+				Office:      teacher.Office,
+				Phone:       teacher.Phone,
+				Email:       teacher.Email,
+				StudentsNum: studentsNum,
+				TeacherDDL:  formattedTime,
+			}
+			responseTeacherList = append(responseTeacherList, response)
+		}
+
+		utils.JsonSuccessResponse(c, gin.H{
+			"total_page_num": math.Ceil(float64(*totalPageNum) / float64(data.PageSize)),
+			"data":           responseTeacherList,
+		})
+
+	} else {
+		teacher, err := studentService.GetTeacherByName(data.Name)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ServerError)
+			return
+		}
 		_, studentsNum, err := studentService.GetTeacherByTeacherID(teacher.ID)
 		if err != nil {
 			utils.JsonErrorResponse(c, apiException.ServerError)
@@ -76,6 +113,7 @@ func GetTeacherList(c *gin.Context) {
 			return
 		}
 		formattedTime := teacherDDL.FirstDDL.Format("2006-01-02T15:04:05Z")
+		var responseTeacherList []Teacher
 		response := Teacher{
 			ID:          teacher.ID,
 			Name:        teacher.TeacherName,
@@ -87,10 +125,11 @@ func GetTeacherList(c *gin.Context) {
 			TeacherDDL:  formattedTime,
 		}
 		responseTeacherList = append(responseTeacherList, response)
+		utils.JsonSuccessResponse(c, gin.H{
+			"total_page_num": math.Ceil(float64(*totalPageNum) / float64(data.PageSize)),
+			"data":           responseTeacherList,
+		})
+
 	}
 
-	utils.JsonSuccessResponse(c, gin.H{
-		"total_page_num": math.Ceil(float64(*totalPageNum) / float64(data.PageSize)),
-		"data":           responseTeacherList,
-	})
 }
