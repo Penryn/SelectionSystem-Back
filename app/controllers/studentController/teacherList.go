@@ -9,9 +9,9 @@ import (
 )
 
 type PageData struct {
-	PageNum  int `form:"page_num" binding:"required"`
-	PageSize int `form:"page_size" binding:"required"`
-	Name    string `form:"name"`
+	PageNum  int    `form:"page_num" binding:"required"`
+	PageSize int    `form:"page_size" binding:"required"`
+	Name     string `form:"name"`
 }
 
 type Teacher struct {
@@ -46,14 +46,15 @@ func GetTeacherList(c *gin.Context) {
 		return
 	}
 
-	if student.Name == "未填写" {
+	flag := studentService.CheckStudentInfo(student)
+	if !flag {
 		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
 		return
 	}
 
 	teacherList, err := studentService.GetTeacherList(data.PageNum, data.PageSize, data.Name)
 	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.TeacherNotFound)
 		return
 	}
 

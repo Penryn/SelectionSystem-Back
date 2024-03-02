@@ -1,6 +1,7 @@
 package studentService
 
 import (
+	"SelectionSystem-Back/app/apiException"
 	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/app/utils"
 	"SelectionSystem-Back/config/database"
@@ -73,20 +74,26 @@ func UpdateTeacher(targetId int, studentsNum int) error {
 	return nil
 }
 
-func GetTeacherList(pageNum, pageSize int,name string) ([]models.Teacher, error) {
+func GetTeacherList(pageNum, pageSize int, name string) ([]models.Teacher, error) {
 	var teacherList []models.Teacher
 	result := database.DB.Where(models.Teacher{
 		TeacherName: name,
 	}).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&teacherList)
+	if len(teacherList) == 0 {
+		return nil, apiException.TeacherNotFound
+	}
 	return teacherList, result.Error
+
 }
 
-func GetTeacherByName(name string) (*models.Teacher, error) {
-	var teacher *models.Teacher
-	result := database.DB.Model(models.Teacher{}).Where(models.Teacher{
-		TeacherName: name,
-	}).First(&teacher)
-	return teacher, result.Error
+func CheckStudentInfo(student *models.Student) bool {
+	var flag bool
+	if student.Name == "未填写" || student.Class == "未填写" || student.Phone == "未填写" || student.PoliticalStatus == "未填写" || student.Email == "未填写" || student.Address == "未填写" || student.Plan == "未填写" || student.Experience == "未填写" || student.Honor == "未填写" || student.Interest == "未填写" {
+		flag = false
+	} else {
+		flag = true
+	}
+	return flag
 }
 
 func GetTotalPageNum() (*int64, error) {

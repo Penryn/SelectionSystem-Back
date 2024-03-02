@@ -34,7 +34,8 @@ func AdvicePost(c *gin.Context) {
 		return
 	}
 
-	if student.Name == "未填写" {
+	flag := studentService.CheckStudentInfo(student)
+	if !flag {
 		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
 		return
 	}
@@ -70,7 +71,16 @@ func AdviceGet(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-
+	student, err := studentService.GetStudentInfoByUserID(userId.(int))
+	if err != nil {
+		utils.JsonErrorResponse(c, apiException.ServerError)
+		return
+	}
+	flag := studentService.CheckStudentInfo(student)
+	if !flag {
+		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
+		return
+	}
 	advice, err := studentService.GetAdvice(userId.(int))
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
