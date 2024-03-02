@@ -220,7 +220,7 @@ func Disassociate(c *gin.Context) {
 	//查询学生
 	student, err := userService.GetStudentByStudentID(data.StudentID)
 	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.StudentExistError)
 		return
 	}
 	if student.AdminStatus != 2 {
