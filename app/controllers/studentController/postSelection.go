@@ -36,7 +36,8 @@ func PostTeacher(c *gin.Context) {
 		return
 	}
 
-	if studentInfo.Name == "未填写" {
+	flag := studentService.CheckStudentInfo(studentInfo)
+	if !flag {
 		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
 		return
 	}
@@ -111,7 +112,8 @@ func UploadSelectionTable(c *gin.Context) {
 		return
 	}
 	//查看个人信息有无填写
-	if student.Name == "未填写" {
+	flag := studentService.CheckStudentInfo(student)
+	if !flag {
 		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
 		return
 	}
