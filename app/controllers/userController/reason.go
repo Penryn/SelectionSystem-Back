@@ -38,6 +38,12 @@ func CreateReason(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
+	//查找原因是否存在
+	_, err = userService.GetReasonByName(data.ReasonName)
+	if err == nil {
+		utils.JsonErrorResponse(c, apiException.ReasonExist)
+		return
+	}
 	//创建原因
 	err = userService.CreateReason(user.ID, data.ReasonName, data.ReasonContent)
 	if err != nil {
