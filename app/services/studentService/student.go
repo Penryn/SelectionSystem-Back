@@ -76,14 +76,15 @@ func UpdateTeacher(targetId int, studentsNum int) error {
 
 func GetTeacherList(pageNum, pageSize int, name string) ([]models.Teacher, error) {
 	var teacherList []models.Teacher
-	result := database.DB.Where(models.Teacher{
-		TeacherName: name,
-	}).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&teacherList)
+	query := database.DB
+	if name != "" {
+		query = query.Where("teacher_name LIKE ?", "%"+name+"%")
+	}
+	result := query.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&teacherList)
 	if len(teacherList) == 0 {
 		return nil, apiException.TeacherNotFound
 	}
 	return teacherList, result.Error
-
 }
 
 func CheckStudentInfo(student *models.Student) bool {
@@ -98,9 +99,11 @@ func CheckStudentInfo(student *models.Student) bool {
 
 func GetTotalPageNum(name string) (*int64, error) {
 	var pageNum int64
-	result := database.DB.Model(models.Teacher{}).Where(models.User{
-		Username: name,
-	}).Count(&pageNum)
+	query := database.DB
+	if name != "" {
+		query = query.Where("teacher_name LIKE ?", "%"+name+"%")
+	}
+	result := query.Model(&models.Teacher{}).Count(&pageNum)
 	if result.Error != nil {
 		return nil, result.Error
 	}
