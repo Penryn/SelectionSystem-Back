@@ -81,9 +81,11 @@ func GetTeacherList(pageNum, pageSize int,name string) ([]models.Teacher, error)
 	return teacherList, result.Error
 }
 
-func GetTotalPageNum() (*int64, error) {
+func GetTotalPageNum(name string) (*int64, error) {
 	var pageNum int64
-	result := database.DB.Model(models.Teacher{}).Count(&pageNum)
+	result := database.DB.Model(models.Teacher{}).Where(models.User{
+		Username: name,
+	}).Count(&pageNum)
 	if result.Error != nil {
 		return nil, result.Error
 	}

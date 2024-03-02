@@ -50,7 +50,7 @@ func GetTeacherList(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.StudentInfoWrong)
 		return
 	}
-
+	
 	teacherList, err := studentService.GetTeacherList(data.PageNum, data.PageSize, data.Name)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
@@ -58,7 +58,7 @@ func GetTeacherList(c *gin.Context) {
 	}
 
 	var totalPageNum *int64
-	totalPageNum, err = studentService.GetTotalPageNum()
+	totalPageNum, err = studentService.GetTotalPageNum(data.Name)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
