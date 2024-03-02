@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"SelectionSystem-Back/config/config"
 	"errors"
 	"time"
-	"SelectionSystem-Back/config/config"
 
 	"github.com/dgrijalva/jwt-go"
 )

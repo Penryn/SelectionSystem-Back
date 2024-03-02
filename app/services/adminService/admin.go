@@ -160,14 +160,3 @@ func GetTeachers(pagenum,pagesize int)([]models.Teacher,*int64, error){
 }
 
 
-
-// func ChangeStudentNum(teacher_id int) error {
-// 	var teacher models.Teacher
-// 	result := database.DB.Preload("Students").Take(&teacher, "id = ?", teacher_id)
-// 	if result.Error != nil {
-// 		return result.Error
-// 	}
-// 	StudentNum := len(teacher.Students)
-// 	result = database.DB.Model(&teacher).Updates(map[string]interface{}{"students_num": StudentNum})
-// 	return result.Error
-// }

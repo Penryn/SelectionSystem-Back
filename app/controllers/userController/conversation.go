@@ -42,6 +42,11 @@ func SendConversation(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
+	//查询信息是否为空
+	if data.Message == "" {
+		utils.JsonErrorResponse(c, apiException.MessageError)
+		return
+	}
 	//发送消息
 	err = userService.SendConversation(userA.ID, userB.ID, data.Message)
 	if err != nil {
