@@ -264,7 +264,11 @@ func GetTeacherByUserID(userID int) (models.Teacher,error) {
 	result:=database.DB.Where(models.Teacher{UserID: userID}).First(&teacher)
 	return teacher,result.Error
 }
-
+func GetReasonByName(reasonName string) (models.Reason,error) {
+	var reason models.Reason
+	result:=database.DB.Where(models.Reason{ReasonName: reasonName}).First(&reason)
+	return reason,result.Error
+}
 
 func AseEncryptPassword(user *models.User){
 	user.Password = utils.AesEncrypt(user.Password)

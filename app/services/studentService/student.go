@@ -73,9 +73,11 @@ func UpdateTeacher(targetId int, studentsNum int) error {
 	return nil
 }
 
-func GetTeacherList(pageNum, pageSize int) ([]models.Teacher, error) {
+func GetTeacherList(pageNum, pageSize int,name string) ([]models.Teacher, error) {
 	var teacherList []models.Teacher
-	result := database.DB.Model(models.Teacher{}).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&teacherList)
+	result := database.DB.Model(models.Teacher{
+		TeacherName: name,
+	}).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&teacherList)
 	return teacherList, result.Error
 }
 

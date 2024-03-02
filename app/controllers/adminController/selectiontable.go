@@ -224,7 +224,7 @@ func Disassociate(c *gin.Context) {
 		return
 	}
 	if student.AdminStatus != 2 {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.AdminStatusError)
 		return
 	}
 	err = adminService.Disassociate(student.StudentID, student.TargetID)
