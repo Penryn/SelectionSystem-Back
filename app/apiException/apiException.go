@@ -32,6 +32,7 @@ var (
 	MessageError             = NewError(http.StatusInternalServerError, 200519, "消息不能为空")
 	StudentExistError        = NewError(http.StatusInternalServerError, 200520, "该学号不存在")
 	ReasonNameOrContentEmpty = NewError(http.StatusInternalServerError, 200521, "原因名称或原因内容不能为空")
+	TeacherNotFound          = NewError(http.StatusInternalServerError, 200522, "该老师不存在")
 	NotFound                 = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	Unknown                  = NewError(http.StatusInternalServerError, 300500, "系统异常，请稍后重试!")
 )
