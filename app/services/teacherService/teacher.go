@@ -34,6 +34,7 @@ func StudentList(targetId int, checkStudentList int) ([]models.Student, error) {
 	} else if checkStudentList == 2 {
 		result := database.DB.Model(models.Student{}).
 			Where("target_id = ? AND target_status IN (?)", targetId, []int{2, 3}).
+			Order("CASE WHEN target_status = 3 THEN 0 WHEN target_status = 2 AND admin_status = 1 THEN 1 WHEN target_status = 2 AND admin_status = 3 THEN 2 WHEN target_status = 2 AND admin_status = 2 THEN 3 ELSE 4 END").
 			Find(&studentList)
 		if len(studentList) == 0 {
 			return []models.Student{}, nil
