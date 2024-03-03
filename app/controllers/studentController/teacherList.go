@@ -93,6 +93,7 @@ func GetTeacherList(c *gin.Context) {
 
 	utils.JsonSuccessResponse(c, gin.H{
 		"total_page_num": math.Ceil(float64(*totalPageNum) / float64(data.PageSize)),
+		"teacher_num":	*totalPageNum,
 		"data":           responseTeacherList,
 	})
 }

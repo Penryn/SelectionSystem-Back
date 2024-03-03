@@ -1,6 +1,8 @@
 package userService
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/xuri/excelize/v2"
@@ -51,12 +53,24 @@ func GetUserByUsername(username string) (models.User, error) {
 
 func GetAvartar() string {
 	avatars := []string{
-		"http://inews.gtimg.com/newsapp_bt/0/14710913833/1000",
-		"https://i01piccdn.sogoucdn.com/5f97fd70f583cec5",
-		"https://c-ssl.duitang.com/uploads/item/201907/23/20190723224932_cykee.thumb.700_0.jpg",
-		"http://inews.gtimg.com/newsapp_bt/0/13044084095/1000",
-		"https://i02piccdn.sogoucdn.com/9831e5c44cbb5ecc",
-		"http://inews.gtimg.com/newsapp_bt/0/13814264984/1000",
+		"https://phlin.love/static/5e75bf70-ce05-4920-b7ba-7b8bcf1c9581.jpg",
+		"https://phlin.love/static/712df083-8df1-40a4-bdea-e6403b25314a.jpg",
+		"https://phlin.love/static/be262a7c-fe00-4108-bcd4-b0609e9baca5.jpg",
+		"https://phlin.love/static/7433cca3-86c1-4ea3-8e24-840f53ac85b8.jpg",
+		"https://phlin.love/static/cacc8913-f6c0-45ad-8b84-c3871c664f94.jpg",
+		"https://phlin.love/static/e515b3f9-d7f1-4e40-9086-8ded75d0838b.jpg",
+		"https://phlin.love/static/c86ae912-ca99-4637-9228-ece8fa06aedf.jpg",
+		"https://phlin.love/static/42c06eca-7bf9-4d42-819c-b46295be80b1.jpg",
+		"https://phlin.love/static/42c06eca-7bf9-4d42-819c-b46295be80b1.jpg",
+		"https://phlin.love/static/4d138da9-be71-43a7-8018-3a90b6ef5f9f.jpg",
+		"https://phlin.love/static/5bbe2abb-58a5-447c-80e1-e828b84d330f.jpg",
+		"https://phlin.love/static/3f11138a-7a9e-4aaa-ae48-77358590ba42.jpg",
+		"https://phlin.love/static/dc07b05a-2711-492a-9962-1d289ef61d7d.jpg",
+
+
+
+
+		
 	}
 	randomIndex := rand.Intn(len(avatars))
 	return avatars[randomIndex]
@@ -137,11 +151,15 @@ func ImportTeacherExcel() error {
 		if i == 0 || i == 1 {
 			continue
 		}
-		result := database.DB.Where(models.User{Username: "114514" + record[0]}).First(&models.User{})
+		username, err := strconv.Atoi(record[0])
+		if err != nil {
+			return err
+		}
+		result := database.DB.Where(models.User{Username: fmt.Sprintf("zjut%03d", username)}).First(&models.User{})
 		if result.Error == gorm.ErrRecordNotFound {
 			var user models.User
-			user.Username = "114514" + record[0]
-			user.Password="123456"
+			user.Username = fmt.Sprintf("zjut%03d", username)
+			user.Password = "123456"
 			user.Type = 2
 			user.Avartar = GetAvartar()
 			AseEncryptPassword(&user)
@@ -149,7 +167,7 @@ func ImportTeacherExcel() error {
 			if result.Error != nil {
 				return result.Error
 			}
-			user, err := GetUserByUsername("114514" + record[0])
+			user, err := GetUserByUsername(fmt.Sprintf("zjut%03d", username))
 			if err != nil {
 				return err
 			}

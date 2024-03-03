@@ -97,7 +97,7 @@ func UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	url := "http://phlin.love/static/" + filename
+	url := "https://phlin.love/static/" + filename
 
 	err = userService.UpdateAvatar(user.ID, url)
 	if err != nil {

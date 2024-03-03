@@ -43,7 +43,7 @@ func SendConversation(c *gin.Context) {
 		return
 	}
 	//查询信息是否为空
-	if data.Message == "" {
+	if data.Message == "" || data.Message == "\n" {
 		utils.JsonErrorResponse(c, apiException.MessageError)
 		return
 	}
