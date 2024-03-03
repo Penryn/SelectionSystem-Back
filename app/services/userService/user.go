@@ -76,6 +76,13 @@ func GetStudentByStudentID(sid string) (models.Student, error) {
 	return student, result.Error
 }
 
+func GetStudentByStudentIDAndAdminStatus(sid string) (models.Student, error) {
+	var student models.Student
+	result := database.DB.Where(models.Student{StudentID: sid}).Not(models.Student{AdminStatus: 0}).First(&student)
+	AseDecryptStudentInfo(&student)
+	return student, result.Error
+}
+
 func GetStudentByID(id int) (models.Student, error) {
 	var student models.Student
 	result := database.DB.Where(models.Student{UserID: id}).First(&student)
