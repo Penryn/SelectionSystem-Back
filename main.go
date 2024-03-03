@@ -24,6 +24,7 @@ func main() {
 	userService.CreateAdministrator()
 	userService.ImportTeacherExcel()
 	r.Static("/static","./static")
+	r.Static("files","./files")
 	go timeController.Time()
 	router.Init(r)
 	err := r.Run()
