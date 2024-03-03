@@ -270,7 +270,7 @@ func WithdrawApproval(c *gin.Context) {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return
 		}
-		if studentInfo.TargetStatus == 2 && studentInfo.AdminStatus == 3 {
+		if studentInfo.TargetStatus == 2 && (studentInfo.AdminStatus == 3 || studentInfo.AdminStatus == 1) {
 			studentInfo.TargetStatus = 1
 		} else if studentInfo.TargetStatus == 2 && studentInfo.AdminStatus == 2 {
 			utils.JsonErrorResponse(c, apiException.AdminError)
