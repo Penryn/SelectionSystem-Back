@@ -37,6 +37,8 @@ var (
 	AdminPostError           = NewError(http.StatusInternalServerError, 200523, "该学生并未提交申请或已被审批")
 	TeacherPostError         = NewError(http.StatusInternalServerError, 200524, "该学生未被教师审批通过")
 	AdminError               = NewError(http.StatusInternalServerError, 200525, "该学生已被管理员审批通过，若需要请到最终学生处解除关系")
+	PhoneError               = NewError(http.StatusInternalServerError, 200526, "电话格式错误")
+	EmailError               = NewError(http.StatusInternalServerError, 200527, "邮箱格式错误")
 	NotFound                 = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	Unknown                  = NewError(http.StatusInternalServerError, 300500, "系统异常，请稍后重试!")
 )

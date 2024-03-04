@@ -5,6 +5,8 @@ import (
 	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/app/services/studentService"
 	"SelectionSystem-Back/app/utils"
+	"regexp"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -130,7 +132,18 @@ func UpdateStudentInfo(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-
+	//判断电话是否符合格式
+	phone_sample := regexp.MustCompile(`^1[3|4|5|7|8][0-9]\d{8}$`)
+	if !phone_sample.MatchString(data.Phone) {
+		utils.JsonErrorResponse(c, apiException.PhoneError)
+		return
+	}
+	//判断邮箱是否符合格式
+	email_sample := regexp.MustCompile(`^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$`)
+	if !email_sample.MatchString(data.Email) {
+		utils.JsonErrorResponse(c, apiException.EmailError)
+		return
+	}
 	if studentInfo.Phone != data.Phone {
 		err = studentService.StudentExistByPhone(userId.(int), data.Phone)
 		if err == nil {
