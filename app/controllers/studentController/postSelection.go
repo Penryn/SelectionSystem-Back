@@ -44,7 +44,7 @@ func PostTeacher(c *gin.Context) {
 
 	targetTeacher, studentNumber, err := studentService.GetTeacherByTeacherID(data.TargetID)
 	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ServerError)
+		utils.JsonErrorResponse(c, apiException.TeacherNotFound)
 		return
 	}
 

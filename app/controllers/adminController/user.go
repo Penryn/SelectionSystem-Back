@@ -11,7 +11,7 @@ import (
 )
 
 type ResetData struct {
-	UserID  int    `json:"user_id"`
+	UserID int `json:"user_id"`
 }
 
 func ResetUser(c *gin.Context) {
@@ -49,8 +49,8 @@ func ResetUser(c *gin.Context) {
 }
 
 type GetUserByAdminData struct {
-	PageNum int `form:"page_num" validate:"required"`
-	PageSize int `form:"page_size" validate:"required"`
+	PageNum  int    `form:"page_num" validate:"required"`
+	PageSize int    `form:"page_size" validate:"required"`
 	UserName string `form:"user_name"`
 }
 
@@ -83,12 +83,12 @@ func GetUserByAdmin(c *gin.Context) {
 		return
 	}
 	var num *int64
-	users, num,err := adminService.GetUsers(data.PageNum, data.PageSize,data.UserName)
+	users, num, err := adminService.GetUsers(data.PageNum, data.PageSize, data.UserName)
 	if err != nil {
 		utils.JsonErrorResponse(c, apiException.ServerError)
 		return
 	}
-	response:=make([]GetUserResponse,0)
+	response := make([]GetUserResponse, 0)
 	for _, v := range users {
 		response = append(response, GetUserResponse{
 			ID:       v.ID,
@@ -96,5 +96,9 @@ func GetUserByAdmin(c *gin.Context) {
 			Type:     v.Type,
 		})
 	}
-	utils.JsonSuccessResponse(c, gin.H{"data": response, "total_page_num": math.Ceil(float64(*num)/float64(data.PageSize))})
+	utils.JsonSuccessResponse(c, gin.H{
+		"data":           response,
+		"total_page_num": math.Ceil(float64(*num) / float64(data.PageSize)),
+		"user_num":       *num,
+	})
 }

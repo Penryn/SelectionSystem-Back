@@ -2,6 +2,7 @@ package adminController
 
 import (
 	"SelectionSystem-Back/app/apiException"
+	"SelectionSystem-Back/app/models"
 	"SelectionSystem-Back/app/services/adminService"
 	"SelectionSystem-Back/app/services/userService"
 	"SelectionSystem-Back/app/utils"
@@ -90,10 +91,13 @@ func CheckTable(c *gin.Context) {
 		return
 	}
 	//查询原因
-	reason, err := userService.GetReasonsByReasonID(data.ReasonID)
-	if err != nil {
-		utils.JsonErrorResponse(c, apiException.ReasonExistError)
-		return
+	var reason models.Reason
+	if data.ReasonID != 0 {
+		reason, err = userService.GetReasonsByReasonID(data.ReasonID)
+		if err != nil {
+			utils.JsonErrorResponse(c, apiException.ReasonExistError)
+			return
+		}
 	}
 	//批量处理学生
 	if len(data.StudentsID) > 6 {
