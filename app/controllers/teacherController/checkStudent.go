@@ -98,6 +98,11 @@ func CheckByTeacher(c *gin.Context) {
 					return
 				}
 			}
+			err = teacherService.SendConversation(userId.(int), studentInfo.UserID, "你的双向选择请求已被教师通过")
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
 		}
 	} else if data.Check == 2 {
 		if data.ReasonID == 0 {
@@ -132,7 +137,7 @@ func CheckByTeacher(c *gin.Context) {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
 			}
-			err = teacherService.SendConversation(userId.(int), studentInfo.UserID, "你的双向选择请求已被拒绝，理由如下："+reason.ReasonContent)
+			err = teacherService.SendConversation(userId.(int), studentInfo.UserID, "你的双向选择请求已被教师拒绝，理由如下："+reason.ReasonContent)
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
@@ -272,6 +277,11 @@ func WithdrawApproval(c *gin.Context) {
 		}
 		if studentInfo.TargetStatus == 2 && (studentInfo.AdminStatus == 3 || studentInfo.AdminStatus == 1||studentInfo.AdminStatus == 0) {
 			studentInfo.TargetStatus = 1
+			err = teacherService.SendConversation(userId.(int), studentInfo.UserID, "你被教师通过的双向选择请求已被取消")
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
 		} else if studentInfo.TargetStatus == 2 && studentInfo.AdminStatus == 2 {
 			utils.JsonErrorResponse(c, apiException.AdminError)
 			return
@@ -283,6 +293,11 @@ func WithdrawApproval(c *gin.Context) {
 				return
 			}
 			studentInfo.TargetStatus = 1
+			err = teacherService.SendConversation(userId.(int), studentInfo.UserID, "你被教师驳回的双向选择请求已被取消")
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
 		} else {
 			utils.JsonErrorResponse(c, apiException.ServerError)
 			return

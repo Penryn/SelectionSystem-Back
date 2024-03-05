@@ -44,7 +44,7 @@ func CreateReason(c *gin.Context) {
 		return
 	}
 	//查找原因是否存在
-	_, err = userService.GetReasonByName(data.ReasonName)
+	_, err = userService.GetReasonByName(data.ReasonName,user.ID)
 	if err == nil {
 		utils.JsonErrorResponse(c, apiException.ReasonExist)
 		return

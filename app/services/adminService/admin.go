@@ -147,8 +147,16 @@ func Disassociate(studentID string, target_id int) error {
 			return err
 		}
 		result = database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 1})
+		err =userService.SendConversation(1, student.UserID, "您被管理员通过的双向选择已被取消")
+		if err != nil {
+			return err
+		}
 	}else if student.AdminStatus == 3 {
 		result = database.DB.Model(&student).Updates(map[string]interface{}{"admin_status": 1})
+		err =userService.SendConversation(1, student.UserID, "您被管理员驳回的双向选择已被取消")
+		if err != nil {
+			return err
+		}
 	}
 	return result.Error
 }

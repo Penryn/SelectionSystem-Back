@@ -125,7 +125,13 @@ func CheckTable(c *gin.Context) {
 			return
 		}
 		if data.Check == 2 {
-			err = userService.SendConversation(user.ID, student.UserID, "您的双向申请表申请被拒绝，原因："+reason.ReasonContent)
+			err = userService.SendConversation(user.ID, student.UserID, "您的双向申请表申请已被管理员拒绝，原因："+reason.ReasonContent)
+			if err != nil {
+				utils.JsonErrorResponse(c, apiException.ServerError)
+				return
+			}
+		}else if data.Check == 1 {
+			err = userService.SendConversation(user.ID, student.UserID, "您的双向申请表申请被管理员通过")
 			if err != nil {
 				utils.JsonErrorResponse(c, apiException.ServerError)
 				return
@@ -226,8 +232,8 @@ func Disassociate(c *gin.Context) {
 		utils.JsonErrorResponse(c, apiException.StudentExistError)
 		return
 	}
-	if student.AdminStatus != 2 {
-		utils.JsonErrorResponse(c, apiException.AdminStatusError)
+	if student.AdminStatus != 2 && student.AdminStatus != 3 {
+		utils.JsonErrorResponse(c, apiException.AdminPostError)
 		return
 	}
 	err = adminService.Disassociate(student.StudentID, student.TargetID)

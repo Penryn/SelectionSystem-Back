@@ -289,9 +289,9 @@ func GetTeacherByUserID(userID int) (models.Teacher,error) {
 	result:=database.DB.Where(models.Teacher{UserID: userID}).First(&teacher)
 	return teacher,result.Error
 }
-func GetReasonByName(reasonName string) (models.Reason,error) {
+func GetReasonByName(reasonName string,uid int) (models.Reason,error) {
 	var reason models.Reason
-	result:=database.DB.Where(models.Reason{ReasonName: reasonName}).First(&reason)
+	result:=database.DB.Where(models.Reason{ReasonName: reasonName,UserID: uid}).First(&reason)
 	return reason,result.Error
 }
 
