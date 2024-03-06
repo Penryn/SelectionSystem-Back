@@ -22,3 +22,5 @@ func JsonSuccessResponse(c *gin.Context, data interface{}) {
 func JsonErrorResponse(c *gin.Context, err *apiException.Error) {
 	JsonResponse(c, http.StatusOK, err.Code, err.Msg, nil)
 }
+
+

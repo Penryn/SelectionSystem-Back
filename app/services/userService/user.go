@@ -323,3 +323,4 @@ func AseDecryptStudentInfo(student *models.Student){
 	student.Interest = utils.AesDecrypt(student.Interest)
 }
 
+

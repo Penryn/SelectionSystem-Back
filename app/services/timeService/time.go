@@ -50,3 +50,5 @@ func UpdateTeacher(teacher_id int) error {
 	result := database.DB.Model(&models.Teacher{}).Where("id=?", teacher_id).Update("students_num", database.DB.Raw("students_num+1"))
 	return result.Error
 }
+
+
